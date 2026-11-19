@@ -21,6 +21,7 @@ function NavBar() {
     : "";
 
   const navLinks = [
+    { to: '/tutorial', label: 'Ceļvedis', icon: '🧭' },
     { to: '/calendar', label: 'Kalendārs', icon: '📅' },
     { to: '/my-events', label: 'Notikumi', icon: '🗂️' },
     { to: '/albums', label: 'Albumi', icon: '📚' },

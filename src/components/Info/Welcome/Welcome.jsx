@@ -24,6 +24,9 @@ function Welcome() {
             <Link to="/login" className="btn-secondary px-6 py-3 text-sm sm:text-base no-underline">
               Pieslēgties
             </Link>
+            <Link to="/tutorial" className="btn-secondary px-6 py-3 text-sm sm:text-base no-underline">
+              Iepazīt vietni
+            </Link>
           </div>
         </div>
       </div>

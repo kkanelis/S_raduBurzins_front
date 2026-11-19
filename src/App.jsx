@@ -19,6 +19,7 @@ const Profile = lazy(() => import("./components/auth/Profile"));
 const ChristmasLottery = lazy(() => import("./components/Christmas/ChristmasLottery"));
 const MyEvents = lazy(() => import("./components/MyEvents/MyEvents"));
 const Albums = lazy(() => import("./components/Albums/Albums"));
+const Tutorial = lazy(() => import("./components/Info/Tutorial/Tutorial"));
 
 // App root and routing
 const AppContent = () => {
@@ -41,6 +42,7 @@ const AppContent = () => {
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/terms" element={<Terms />} />
+              <Route path="/tutorial" element={<Tutorial />} />
               <Route
                 path="/RegWelcome"
                 element={
