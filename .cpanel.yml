@@ -1,6 +1,7 @@
 ---
 deployment:
   tasks:
+    - export PATH=/home2/raduburz/nodevenv/nodeapp/22/bin:$PATH
     - export DEPLOYPATH=/home2/raduburz/public_html
     - npm ci --no-audit --no-fund
     - export VITE_API_BASE_URL=https://api.raduburzins.lv
