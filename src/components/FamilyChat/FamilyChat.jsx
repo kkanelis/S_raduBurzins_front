@@ -187,7 +187,7 @@ function FamilyChat() {
   }, [queryClient, user]);
 
   return (
-    <div className="relative h-[calc(100vh-5rem)] min-h-0 overflow-hidden bg-[#f5f7f3]">
+    <div className="chat-viewport relative min-h-0 overflow-hidden bg-[#f5f7f3]">
       <div className="pointer-events-none absolute inset-0 hero-grid opacity-25" />
 
       <div className="section-shell relative h-full min-h-0 py-3 sm:py-5">

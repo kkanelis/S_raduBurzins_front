@@ -141,7 +141,7 @@ function Tutorial() {
           <div className="grid lg:grid-cols-[260px_minmax(0,1fr)]">
             <nav
               aria-label="Ceļveža soļi"
-              className="flex gap-2 overflow-x-auto border-b border-[#eee7f5] p-4 lg:flex-col lg:overflow-visible lg:border-b-0 lg:border-r lg:p-5"
+              className="grid grid-cols-2 gap-2 border-b border-[#eee7f5] p-4 sm:grid-cols-3 lg:flex lg:flex-col lg:border-b-0 lg:border-r lg:p-5"
             >
               {steps.map((item, index) => (
                 <button
@@ -149,14 +149,14 @@ function Tutorial() {
                   type="button"
                   aria-current={index === activeStep ? 'step' : undefined}
                   onClick={() => setActiveStep(index)}
-                  className={`flex shrink-0 items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-bold transition lg:w-full ${
+                  className={`flex min-w-0 items-start gap-2 rounded-xl px-2.5 py-3 text-left text-sm font-bold leading-5 transition sm:items-center sm:gap-3 sm:px-3 lg:w-full ${
                     index === activeStep
                       ? 'bg-[#eee7f5] text-[#382d5b]'
                       : 'text-muted hover:bg-warm-beige/50 hover:text-dark-purple'
                   }`}
                 >
-                  <span className="text-lg" aria-hidden="true">{item.icon}</span>
-                  <span className="whitespace-nowrap lg:whitespace-normal">{item.title}</span>
+                  <span className="shrink-0 text-lg" aria-hidden="true">{item.icon}</span>
+                  <span className="min-w-0 break-words">{item.title}</span>
                 </button>
               ))}
             </nav>
@@ -184,7 +184,7 @@ function Tutorial() {
                 </ol>
               </div>
 
-              <div className="mt-8 flex items-center justify-between gap-3 border-t border-[#eee7f5] pt-5">
+              <div className="mt-8 flex flex-col-reverse items-stretch gap-3 border-t border-[#eee7f5] pt-5 sm:flex-row sm:items-center sm:justify-between">
                 <button
                   type="button"
                   onClick={() => setActiveStep((current) => Math.max(0, current - 1))}

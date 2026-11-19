@@ -14,6 +14,7 @@ describe('Tutorial', () => {
     expect(screen.getByRole('heading', { name: 'Iepazīsti vietni soli pa solim' })).toBeTruthy();
     expect(screen.getByRole('button', { name: '← Iepriekšējais' }).disabled).toBe(true);
     expect(screen.queryAllByRole('link')).toHaveLength(0);
+    expect(screen.getByRole('navigation', { name: 'Ceļveža soļi' }).querySelectorAll('button')).toHaveLength(7);
 
     fireEvent.click(screen.getByRole('button', { name: 'Nākamais →' }));
     expect(screen.getByRole('heading', { name: 'Sakārto savu profilu' })).toBeTruthy();

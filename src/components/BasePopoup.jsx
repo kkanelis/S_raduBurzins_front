@@ -5,7 +5,7 @@ function BasePopup({ title, onClose, children, width = "500px" }) {
     <div className="modal-backdrop" onClick={onClose}>
       <div
         style={{ maxWidth: width }}
-        className="card surface-strong mx-auto w-full max-h-[90vh] overflow-y-auto"
+        className="modal-content card surface-strong mx-auto w-full overflow-y-auto overscroll-contain"
         onClick={(event) => event.stopPropagation()}
         role="dialog"
         aria-modal="true"

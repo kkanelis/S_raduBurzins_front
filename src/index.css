@@ -30,6 +30,11 @@
     scroll-behavior: smooth;
   }
 
+  :where(a, button, input, textarea, select, [tabindex]):focus-visible {
+    outline: 3px solid rgba(79, 63, 99, 0.75);
+    outline-offset: 3px;
+  }
+
   body {
     margin: 0;
     font-family: 'Nunito', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
@@ -159,9 +164,12 @@
     backdrop-filter: blur(6px);
     display: flex;
     align-items: center;
+    align-items: safe center;
     justify-content: center;
     z-index: 50;
-    padding: 1rem;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: max(1rem, env(safe-area-inset-top)) 1rem max(1rem, env(safe-area-inset-bottom));
   }
 
   .input-field {
@@ -184,6 +192,21 @@
     @apply input-field;
     min-height: 7rem;
     resize: vertical;
+  }
+
+  .modal-content {
+    max-height: 90vh;
+    max-height: 90dvh;
+  }
+
+  .chat-viewport {
+    height: calc(100vh - 5rem);
+  }
+
+  @supports (height: 100dvh) {
+    .chat-viewport {
+      height: calc(100dvh - 5rem);
+    }
   }
 }
 
@@ -224,5 +247,20 @@
     background:
       radial-gradient(circle at top left, rgba(255, 255, 255, 0.75), transparent 35%),
       linear-gradient(135deg, rgba(79, 63, 99, 0.12), rgba(255, 255, 255, 0.2));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
   }
 }
