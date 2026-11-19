@@ -61,6 +61,12 @@ Reverb klienta atslēgai `VITE_REVERB_APP_KEY` jāsakrīt ar backend `.env` `REV
 
 Vite proxy darbojas tikai izstrādes serverī. Produkcijā konfigurē `VITE_API_BASE_URL` ar publisko Laravel API adresi un `VITE_REVERB_*` ar sasniedzamo WebSocket adresi pirms `npm run build`.
 
+## cPanel izvietošana
+
+Repozitorija `.cpanel.yml` būvē frontend un publicē `dist/` saturu mapē `/home2/raduburz/public_html`. cPanel Git Version Control repozitorijam jābūt uz `main` zara, un deploy vidē jābūt pieejamam Node.js 18+ un npm.
+
+Būve izmanto `https://api.raduburzins.lv` kā API adresi. `public/.htaccess` nodrošina React maršrutu pāradresēšanu uz `index.html`. Reverb WebSocket servera un `VITE_REVERB_APP_KEY` produkcijas konfigurācija jāiestata atsevišķi; cPanel deploy to automātiski nekonfigurē.
+
 ## Būve, tests un lint
 
 ```powershell
