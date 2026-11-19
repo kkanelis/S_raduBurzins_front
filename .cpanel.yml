@@ -4,12 +4,8 @@ deployment:
     - export PATH=/home2/raduburz/nodevenv/nodeapp/22/bin:$PATH
     - export DEPLOYPATH=/home2/raduburz/public_html
     - cd /home2/raduburz/repositories/S_raduBurzins_front
-    - which node
-    - which npm
-    - node -v
-    - npm -v
-    - npm config get prefix
-    - npm ci --prefix /home2/raduburz/repositories/S_raduBurzins_front --no-audit --no-fund
+    - export NODE_ENV=development
+    - npm ci --include=dev --prefix /home2/raduburz/repositories/S_raduBurzins_front --no-audit --no-fund
     - export VITE_API_BASE_URL=https://api.raduburzins.lv
     - npm run build --prefix /home2/raduburz/repositories/S_raduBurzins_front
     - /bin/mkdir -p "$DEPLOYPATH"
