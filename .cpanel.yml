@@ -3,11 +3,14 @@ deployment:
   tasks:
     - export PATH=/home2/raduburz/nodevenv/nodeapp/22/bin:$PATH
     - export DEPLOYPATH=/home2/raduburz/public_html
-    - pwd
-    - ls -la
-    - cd "$(dirname "$(find . -maxdepth 2 -name package.json -not -path './node_modules/*' | head -n 1)")" && pwd
-    - npm install --no-audit --no-fund
+    - cd /home2/raduburz/repositories/S_raduBurzins_front
+    - which node
+    - which npm
+    - node -v
+    - npm -v
+    - npm config get prefix
+    - npm ci --prefix /home2/raduburz/repositories/S_raduBurzins_front --no-audit --no-fund
     - export VITE_API_BASE_URL=https://api.raduburzins.lv
-    - npm run build
+    - npm run build --prefix /home2/raduburz/repositories/S_raduBurzins_front
     - /bin/mkdir -p "$DEPLOYPATH"
     - /bin/cp -R dist/. "$DEPLOYPATH"/
