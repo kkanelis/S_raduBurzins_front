@@ -126,7 +126,7 @@ function RegWelcome() {
               <div className="min-w-0">
               <div className="eyebrow">
                   <span aria-hidden="true">✦</span>
-                  <span>Radu Burziņš 1. Diena</span>
+                  <span>Radu Burziņš</span>
                 </div>
                 <h1 className="mt-2 text-3xl font-black text-dark-purple">Ģimenes sākums</h1>
                 <p className="mt-2 max-w-xl text-sm text-muted sm:text-base">
