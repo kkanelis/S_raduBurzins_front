@@ -24,8 +24,8 @@ function NavBar() {
     { to: '/calendar', label: 'Kalendārs', icon: '📅' },
     { to: '/my-events', label: 'Notikumi', icon: '🗂️' },
     { to: '/albums', label: 'Albumi', icon: '📚' },
-    { to: '/family-chat', label: 'Ģimenes čats', icon: '💬' },
-    { to: '/christmas', label: 'Svētki', icon: '🎄' },
+    // { to: '/family-chat', label: 'Ģimenes čats', icon: '💬' },
+    // { to: '/christmas', label: 'Svētki', icon: '🎄' },
   ];
 
   return (
