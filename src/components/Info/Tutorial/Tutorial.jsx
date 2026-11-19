@@ -1,132 +1,97 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { useAuth } from '../../../context/useAuth';
 
 const steps = [
   {
-    title: 'Laipni lūgts!',
-    icon: '👋',
-    description: 'Šis ir kopīgs ģimenes stūrītis, kur apskatīt kalendāru, plānot notikumus un glabāt foto atmiņas. Ceļvedī vari atvērt katru sadaļu atsevišķā cilnē un izmēģināt to pats.',
+    title: 'Sāc ar galveno izvēlni',
+    icon: '🧭',
+    description: 'Vietnes sadaļas atver no navigācijas izvēlnes. Lielā ekrānā tā atrodas kreisajā malā; telefonā vai šaurā logā vispirms nospied izvēlnes pogu augšā. Izvēlies sadaļu, kuru vēlies izmantot.',
     tips: [
-      'Ceļvedis paliks atvērts, kamēr izmēģināsi vietni citā cilnē.',
-      'Privātās sadaļas var izmantot tikai pēc pieslēgšanās apstiprinātam kontam.',
+      'Kalendārs rāda vārda un uzvārda dienas, ģimenes dzimšanas dienas un īpašos pasākumus.',
+      'Notikumi ir vieta, kur apskatīt un pārvaldīt tavus pievienotos pasākumus.',
+      'Albumos vari glabāt un apskatīt ģimenes fotogrāfijas.',
+      'Profila sadaļu atver ar savu vārdu vai profila ikonu izvēlnes apakšdaļā.',
+      'Lai atgrieztos sākuma lapā, izvēlies vietnes “Radu Burziņš” nosaukumu izvēlnes augšdaļā.',
     ],
   },
   {
-    title: 'Izveido kontu',
-    icon: '📝',
-    description: 'Reģistrācijas formā norādi savu vārdu, uzvārdu, e-pastu un paroli. Iesauka, tālrunis un dzimšanas datums nav obligāti; dzimšanas diena parādīsies kopīgajā kalendārā.',
-    tips: [
-      'Apstiprini paroli un atzīmē piekrišanu abiem noteikumiem.',
-      'Izmanto savu īsto e-pastu — tas būs vajadzīgs, lai pieslēgtos.',
-      'Paroli ievadi pats; ceļvedis to neprasa un nesaglabā.',
-    ],
-    path: '/register',
-    action: 'Atvērt reģistrāciju',
-  },
-  {
-    title: 'Sagaidi konta apstiprinājumu',
-    icon: '⏳',
-    description: 'Pēc reģistrācijas konts tiek nosūtīts apstiprināšanai. Kad administrators to apstiprinās, varēsi pieslēgties ar reģistrēto e-pastu un paroli.',
-    tips: [
-      'Ja nevari pieslēgties uzreiz, vispirms sagaidi apstiprinājumu.',
-      'Pēc apstiprināšanas atgriezies šajā ceļvedī un turpini ar nākamajiem soļiem.',
-    ],
-  },
-  {
-    title: 'Pieslēdzies',
-    icon: '🔑',
-    description: 'Atver pieslēgšanās lapu, ievadi savu e-pastu un paroli, un spied “Pieslēgties”. Pēc veiksmīgas pieslēgšanās nonāksi savā sākuma lapā.',
-    tips: ['Ja konts vēl nav apstiprināts, sazinies ar vietnes administratoru.'],
-    path: '/login',
-    action: 'Atvērt pieslēgšanos',
-  },
-  {
-    title: 'Apskati savu profilu',
+    title: 'Sakārto savu profilu',
     icon: '👤',
-    description: 'Profilā vari pārbaudīt savu vārdu un kontaktinformāciju, pievienot profila attēlu un saglabāt izmaiņas.',
+    description: 'Profila lapā pārbaudi, vai informācija par tevi ir pareiza. Maini vajadzīgos laukus un spied “Saglabāt profilu”, lai izmaiņas stātos spēkā.',
     tips: [
-      'Pārliecinies, ka dzimšanas datums ir pareizs — tas tiek izmantots ģimenes kalendārā.',
-      'Profila attēlu un citus privātos datus rediģē tikai savā kontā.',
+      'Pārbaudi vārdu, uzvārdu, iesauku, tālruni un e-pasta adresi.',
+      'Pievieno vai izlabo dzimšanas datumu. Tas tiek izmantots ģimenes kalendārā, lai parādītu tavu dzimšanas dienu.',
+      'Lai nomainītu profila attēlu, sadaļā “Profila attēls” spied faila izvēles lauku un izvēlies attēlu savā ierīcē.',
+      'Pirms lapas aizvēršanas noteikti nospied “Saglabāt profilu”; veiksmīgas saglabāšanas paziņojums parādīsies lapā.',
     ],
-    path: '/profile',
-    action: 'Atvērt profilu',
   },
   {
-    title: 'Izmanto ģimenes kalendāru',
+    title: 'Lasi un pārlūko kalendāru',
     icon: '📅',
-    description: 'Kalendārā apskati vārda dienas, ģimenes dzimšanas dienas un pievienotos īpašos notikumus. Izvēlies datumu, lai redzētu, kas tajā ieplānots.',
+    description: 'Kalendārs ir mēneša režģis, kur katra rūtiņa ir viena diena. Dienās var būt redzamas vārda dienas, ģimenes dzimšanas dienas vai pasākumi. Uzspied uz datuma, lai apskatītu pilnu informāciju.',
     tips: [
-      'Ar bultiņām pārej uz citu mēnesi.',
-      'Ar “Jauns notikums” pievieno pasākumu, aprakstu, datumu, laiku un vietu.',
-      'Notikumu vari iestatīt kā ikgadēju vai privātu un izvēlēties, ar ko to kopīgot.',
+      'Izmanto bultiņas pa kreisi un pa labi, lai pārietu uz iepriekšējo vai nākamo mēnesi.',
+      'Spied “Šodien”, lai uzreiz atgrieztos pie pašreizējā mēneša.',
+      'Nospiežot uz dienas, atvērsies tās detaļas: vārda dienas, uzvārda dienas, dzimšanas dienas un ieplānotie pasākumi.',
+      'Atver pasākuma informāciju, lai izlasītu aprakstu, datumu, laiku un norādīto vietu.',
+      'Dažādās dienu krāsas palīdz pamanīt šodienu, dzimšanas dienas un pasākumu datumus.',
     ],
-    path: '/calendar',
-    action: 'Atvērt kalendāru',
+  },
+  {
+    title: 'Pievieno pasākumu kalendāram',
+    icon: '➕',
+    description: 'Kalendāra augšdaļā spied “Jauns notikums”. Aizpildi logā pasākuma informāciju un beigās spied “Pievienot”. Nosaukums un datums ir nepieciešami, lai notikumu saglabātu.',
+    tips: [
+      'Laukā “Nosaukums” ieraksti īsu, saprotamu pasākuma nosaukumu, piemēram, “Ģimenes pikniks”.',
+      'Aprakstā pievieno papildu informāciju, ko pārējiem der zināt.',
+      'Izvēlies datumu kalendāra atlasītājā. Ja pasākumam ir noteikts sākuma laiks, ievadi to 24 stundu formātā HH:mm, piemēram, 18:30.',
+      'Laukā “Atrašanās vieta” ieraksti vietu, kur pasākums notiks.',
+      'Atzīmē “Atkārtojas katru gadu”, ja pasākums katru gadu notiek tajā pašā datumā.',
+      'Pasākums pēc noklusējuma ir kopīgs. Atzīmē “Privāts pasākums”, ja tam jābūt redzamam tikai tev un izvēlētajiem cilvēkiem, un tad atzīmē, kuri lietotāji to drīkst redzēt.',
+      'Pārbaudi ievadīto informāciju un spied “Pievienot”. Pasākumam jāparādās attiecīgajā kalendāra datumā un tavā notikumu sarakstā.',
+    ],
   },
   {
     title: 'Pārvaldi savus notikumus',
     icon: '🗂️',
-    description: 'Sadaļā “Notikumi” redzi un pārvaldi savus pasākumus. Spied “Jauns notikums”, lai pievienotu ieceri, tikšanos vai ģimenes svinības.',
+    description: 'Sadaļā “Notikumi” ir tavi pievienotie pasākumi. Katrs pasākums tiek parādīts atsevišķā kartītē ar nosaukumu, datumu un, ja tie norādīti, aprakstu, laiku un vietu.',
     tips: [
-      'Norādi nosaukumu un datumu; apraksts, laiks un vieta palīdzēs pārējiem sagatavoties.',
-      'Izvēlies, vai notikums ir publisks vai privāts, un vajadzības gadījumā atzīmē konkrētus cilvēkus.',
-      'Esošu notikumu vari labot vai dzēst.',
+      'Kartītes atzīme “Publisks” vai “Privāts” parāda, kam pasākums ir redzams. Ikgadējiem pasākumiem ir arī atzīme “Atkārtojas katru gadu”.',
+      'Lai mainītu pasākumu, atver tā kartīti un spied “Labot”. Maini nosaukumu vai datumu un, ja vajag, aprakstu, vietu vai laiku.',
+      'Rediģēšanas logā vari mainīt arī ikgadējo atkārtošanos un publiskuma iestatījumu. Privātam pasākumam atzīmē konkrētos cilvēkus, kuri to drīkst redzēt.',
+      'Pēc labojumiem spied “Saglabāt”. Ja pārdomāji, spied “Atcelt”, lai aizvērtu logu nesaglabājot izmaiņas.',
+      'Lai noņemtu pasākumu, spied “Dzēst” un apstiprini dzēšanu tikai tad, ja esi pārliecināts.',
     ],
-    path: '/my-events',
-    action: 'Atvērt notikumus',
   },
   {
-    title: 'Veido foto albumus',
+    title: 'Izveido foto albumu',
     icon: '📚',
-    description: 'Albumos saglabā kopīgas atmiņas. Izveido albumu, pievieno foto un izvēlies, kam albums būs redzams.',
+    description: 'Sadaļā “Albumi” spied “Jauns albums”. Vienā reizē vari izveidot albumu un pievienot tam vienu vai vairākus fotoattēlus.',
     tips: [
-      'Spied “Jauns albums”, ievadi albuma informāciju un izvēlies fotoattēlus.',
-      'Atver albumu, lai apskatītu foto, pievienotu attēlus vai reaģētu uz tiem.',
-      'Privātiem albumiem vari norādīt, ar kuriem ģimenes locekļiem tos kopīgot.',
+      'Ieraksti albuma nosaukumu. Kategorija, emoji un apraksts palīdz albumu vēlāk vieglāk atpazīt.',
+      'Laukā “Atlasīt vairākus foto vienlaikus” izvēlies vairākus attēlu failus. Katram attēlam vari pievienot savu nosaukumu un piezīmi.',
+      'Ja gribi pievienot foto pa vienam vai pievienot vēl atsevišķus foto ierakstus, izmanto pogu “+ Foto rinda”. Nevajadzīgu rindu vari noņemt.',
+      'Pirms saglabāšanas pārbaudi attēlu priekšskatījumus, failu nosaukumus un piezīmes.',
+      'Albums sākotnēji ir publisks. Spied “Padarīt privātu”, lai ierobežotu redzamību, un atzīmē cilvēkus, kuriem vēlies albumu kopīgot.',
+      'Kad viss gatavs, spied “Saglabāt albumu”. Albums parādīsies albumu sarakstā.',
     ],
-    path: '/albums',
-    action: 'Atvērt albumus',
   },
   {
-    title: 'Sarunājies ģimenes čatā',
-    icon: '💬',
-    description: 'Ģimenes čatā vari nosūtīt ziņu un pievienot fotoattēlu. Ja čata lapa neatveras, iespējams, šī sadaļa tavā vietnē pašlaik nav ieslēgta.',
+    title: 'Apskati un atjauno albumus',
+    icon: '🖼️',
+    description: 'Albumu sarakstā izvēlies albumu, lai atvērtu tā foto. Spied uz fotoattēla, lai to skatītu lielā skatā. Albuma veidotājs var labot albumu un tā fotoattēlus.',
     tips: [
-      'Raksti ziņu ievades laukā un spied nosūtīšanas pogu.',
-      'Fotoattēlu vari pievienot pie ziņas.',
-      'Ja ziņas neatjaunojas uzreiz, reāllaika čatam var nebūt pieejams savienojums.',
+      'Ja albumu ir daudz, izmanto “Iepriekšējie albumi” un “Nākamie albumi”, lai pārietu starp saraksta lapām.',
+      'Foto skatītājā izmanto bultiņas, lai pārietu uz iepriekšējo vai nākamo attēlu; ar aizvēršanas pogu atgriezies albumā.',
+      'Spied “❤️ Patīk”, lai pievienotu savu reakciju. Ja vēlies to atsaukt, spied “Noņemt reakciju”.',
+      'Lai albumam pievienotu attēlus vēlāk, spied “Pievienot vēl foto”, izvēlies failus, pēc vajadzības ieraksti nosaukumus un piezīmes, tad spied “Pievienot foto”.',
+      'Albuma veidotājs var ar “Labot albumu” mainīt nosaukumu, aprakstu, kategoriju un privātuma iestatījumus.',
+      'Foto skatītājā albuma veidotājs var izvēlēties “Labot foto”, lai mainītu nosaukumu, piezīmi vai pašu attēlu.',
+      'Albuma vai foto dzēšana ir neatgriezeniska darbība. Pirms apstiprināšanas pārliecinies, ka izvēlēts pareizais albums vai attēls.',
     ],
-    path: '/family-chat',
-    action: 'Atvērt ģimenes čatu',
-  },
-  {
-    title: 'Apskati svētku sadaļu',
-    icon: '🎄',
-    description: 'Svētku lapā vari apskatīt Ziemassvētku slepenā vecīša izlozi. Ja izloze tev ir pieejama, uzspied uz dāvanas, lai atklātu, kam gatavot pārsteigumu.',
-    tips: [
-      'Izlozes rezultāti ir atkarīgi no tā, vai šim gadam ir izveidota izloze.',
-      'Ja lapu neredzi vai izloze nav pieejama, pajautā vietnes administratoram.',
-    ],
-    path: '/christmas',
-    action: 'Atvērt svētku lapu',
-  },
-  {
-    title: 'Gatavs — sāc darboties!',
-    icon: '✨',
-    description: 'Tagad zini, kur atrast svarīgākās vietnes iespējas. Vari atgriezties pie jebkura soļa vai atvērt sev vajadzīgo sadaļu.',
-    tips: [
-      'Privātās lapas ir pieejamas pēc pieslēgšanās.',
-      'Lai izietu no konta, izvēlnē spied “Izrakstīties”.',
-      'Lai ceļvedi atvērtu vēlāk, izvēlnē izvēlies “Ceļvedis”.',
-    ],
-    path: '/calendar',
-    action: 'Sākt ar kalendāru',
   },
 ];
 
 function Tutorial() {
-  const { user } = useAuth();
   const [activeStep, setActiveStep] = useState(0);
   const step = steps[activeStep];
   const progress = ((activeStep + 1) / steps.length) * 100;
@@ -139,16 +104,14 @@ function Tutorial() {
         <header className="mx-auto mb-7 max-w-3xl text-center">
           <div className="eyebrow justify-center">
             <span aria-hidden="true">✦</span>
-            <span>Jauno lietotāju ceļvedis</span>
+            <span>Vietnes lietošanas ceļvedis</span>
           </div>
           <h1 className="mt-3 text-3xl font-black tracking-tight text-dark-purple sm:text-5xl">
             Iepazīsti vietni soli pa solim
           </h1>
           <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-muted sm:text-base">
-            {user
-              ? `Prieks tevi redzēt, ${user.first_name}! Atver sadaļas un izmēģini tās savā tempā.`
-              : 'Uzzini, kā reģistrēties, pieslēgties un izmantot ģimenes vietnes iespējas.'}
-            {' '}Atverot sadaļu, ceļvedis paliks šajā cilnē.
+            Šeit atradīsi norādes par vietnes sadaļām un to iespējām. Izvēlies soli
+            sarakstā vai ej cauri ceļvedim secīgi, izmantojot pogas apakšā.
           </p>
         </header>
 
@@ -206,33 +169,19 @@ function Tutorial() {
                 <h2 className="text-2xl font-black text-dark-purple sm:text-3xl">{step.title}</h2>
                 <p className="mt-4 text-sm leading-7 text-muted sm:text-base">{step.description}</p>
 
-                <ul className="mt-5 grid gap-3">
-                  {step.tips.map((tip) => (
+                <h3 className="mt-6 text-sm font-extrabold uppercase tracking-wide text-dark-purple">
+                  Kā rīkoties
+                </h3>
+                <ol className="mt-3 grid gap-3">
+                  {step.tips.map((tip, index) => (
                     <li key={tip} className="flex gap-3 rounded-xl border border-[#eee7f5] bg-[#fcfaff] px-4 py-3 text-sm leading-6 text-dark-purple">
-                      <span className="font-black text-[#12a899]" aria-hidden="true">✓</span>
+                      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#eee7f5] text-xs font-black text-[#382d5b]">
+                        {index + 1}
+                      </span>
                       <span>{tip}</span>
                     </li>
                   ))}
-                </ul>
-
-                {step.path && (
-                  <div className="mt-6">
-                    <Link
-                      to={step.path}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="btn-primary inline-flex items-center gap-2 px-5 py-3 text-sm no-underline"
-                    >
-                      {step.action}
-                      <span aria-hidden="true">↗</span>
-                    </Link>
-                    {!user && activeStep >= 4 && activeStep <= 9 && (
-                      <p className="mt-2 text-xs text-muted">
-                        Šai sadaļai vajadzīgs apstiprināts konts un pieslēgšanās.
-                      </p>
-                    )}
-                  </div>
-                )}
+                </ol>
               </div>
 
               <div className="mt-8 flex items-center justify-between gap-3 border-t border-[#eee7f5] pt-5">
