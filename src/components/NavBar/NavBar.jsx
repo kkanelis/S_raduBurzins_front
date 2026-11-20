@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link, NavLink } from 'react-router-dom';
 import { useAuth } from '../../context/useAuth';
-import api from '../../services/api';
+import ProfileAvatar from '../auth/ProfileAvatar';
 
 function NavBar() {
   const { user, logout } = useAuth();
@@ -15,10 +15,6 @@ function NavBar() {
   };
 
   const closeMenu = () => setShowMobileMenu(false);
-
-  const userInitials = user
-    ? `${user.first_name?.[0] || ""}${user.last_name?.[0] || ""}`.toUpperCase()
-    : "";
 
   const navLinks = [
     { to: '/tutorial', label: 'Ceļvedis', icon: '🧭' },
@@ -70,17 +66,7 @@ function NavBar() {
               {user ? (
                 <>
                   <Link to="/profile" className="hidden items-center gap-3 rounded-lg bg-[#f4eee9] px-3 py-3 text-left no-underline transition hover:bg-[#eee7f5] lg:flex">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-dark-purple to-medium-purple text-sm font-black text-white">
-                      {user.avatar_path ? (
-                        <img
-                          src={`${api.defaults.baseURL}/storage/${user.avatar_path}`}
-                          alt={`${user.first_name} ${user.last_name}`}
-                          className="h-full w-full object-cover"
-                        />
-                      ) : (
-                        userInitials
-                      )}
-                    </div>
+                    <ProfileAvatar user={user} className="h-10 w-10" />
                     <div className="min-w-0">
                       <div className="truncate text-xs font-bold text-dark-purple">{user.first_name} {user.last_name}</div>
                     </div>

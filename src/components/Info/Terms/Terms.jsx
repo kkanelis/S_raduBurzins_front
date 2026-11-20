@@ -1,33 +1,23 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { policyUpdatedAt, privacySections, termsSections } from './policyContent';
 
-const sections = [
-  {
-    title: 'Lietošanas noteikumi',
-    text: 'Jūs piekrītat izmantot šo mājaslapu likumīgiem, personīgiem un paredzētajiem mērķiem.',
-  },
-  {
-    title: 'Lietotāja pienākumi',
-    text: 'Jūs esat atbildīgs par sava konta drošību, paroles konfidencialitāti un ievadīto datu patiesumu.',
-  },
-  {
-    title: 'Personas datu apstrāde',
-    text: 'Dati tiek vākti tikai tik daudz, cik nepieciešams platformas darbībai, profila pārvaldībai un notikumiem.',
-  },
-  {
-    title: 'GDPR un privātums',
-    text: 'Personas dati tiek apstrādāti saskaņā ar VDAR/GDPR principiem un netiek nodoti trešajām personām bez pamata.',
-  },
-  {
-    title: 'Izmaiņas noteikumos',
-    text: 'Noteikumi var tikt atjaunināti, ja mainās tehniskās, juridiskās vai organizatoriskās prasības.',
-  },
-];
+function PolicySection({ section }) {
+  return (
+    <section
+      key={section.title}
+      className="rounded-[1.5rem] border border-white/80 bg-white/85 p-5 shadow-soft backdrop-blur-sm sm:p-6"
+    >
+      <h3 className="text-lg font-black text-dark-purple">{section.title}</h3>
+      <p className="mt-3 text-sm leading-7 text-muted">{section.text}</p>
+    </section>
+  );
+}
 
 function Terms() {
   return (
     <div className="relative overflow-hidden">
-      <div className="absolute inset-0 hero-grid opacity-40 pointer-events-none" />
+      <div className="pointer-events-none absolute inset-0 hero-grid opacity-40" />
 
       <div className="section-shell relative py-8 sm:py-12 lg:py-16">
         <div className="space-y-8">
@@ -35,37 +25,34 @@ function Terms() {
             <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
               <div className="space-y-5">
                 <div className="eyebrow">
-                  <span>✦</span>
-                  <span>Lietošanas noteikumi</span>
+                  <span aria-hidden="true">✦</span>
+                  <span>Juridiskā informācija</span>
                 </div>
 
                 <h1 className="max-w-3xl text-4xl font-black leading-tight tracking-tight text-dark-purple sm:text-5xl lg:text-6xl">
-                  Noteikumi un
+                  Lietošanas noteikumi un
                   <span className="block bg-gradient-to-r from-medium-purple via-light-purple to-[#12b5a6] bg-clip-text text-transparent">
                     privātuma politika
                   </span>
                 </h1>
 
                 <p className="max-w-2xl text-sm leading-7 text-muted sm:text-base">
-                  Šeit ir īss un saprotams kopsavilkums par to, kā lietot mājaslapu un kā tiek apstrādāti dati.
+                  Noteikumi skaidro vietnes lietošanu; privātuma politika — personas datu apstrādi un tavas tiesības.
                 </p>
 
                 <div className="flex flex-wrap gap-3">
-                  <Link to="/calendar" className="btn-primary px-6 py-3 text-sm sm:text-base no-underline">
-                    Atpakaļ uz kalendāru
-                  </Link>
-                  <Link to="/info" className="btn-ghost px-6 py-3 text-sm sm:text-base no-underline">
-                    Par mājaslapu
+                  <Link to="/register" className="btn-primary px-6 py-3 text-sm no-underline sm:text-base">
+                    Reģistrēties
                   </Link>
                 </div>
               </div>
 
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
                 {[
-                  { label: 'Mērķis', value: 'droša lietošana' },
-                  { label: 'Dati', value: 'tikai vajadzīgais' },
-                  { label: 'Atjauninājumi', value: 'pakāpeniski' },
-                  { label: 'Atbilstība', value: 'GDPR' },
+                  { label: 'Pārzinis', value: 'Krists Kārlis Grundmanis' },
+                  { label: 'Pieprasījumi', value: 'Atbildes VDAR termiņā' },
+                  { label: 'Datu dzēšana', value: 'Līdz 30 dienām' },
+                  { label: 'Atjaunināts', value: policyUpdatedAt },
                 ].map((stat) => (
                   <div
                     key={stat.label}
@@ -83,38 +70,38 @@ function Terms() {
             </div>
           </section>
 
-          <section className="grid gap-4 lg:grid-cols-2">
-            {sections.map((section) => (
-              <div
-                key={section.title}
-                className="rounded-[1.5rem] border border-white/80 bg-white/85 p-5 shadow-soft backdrop-blur-sm sm:p-6"
-              >
-                <h2 className="text-lg font-black text-dark-purple">{section.title}</h2>
-                <p className="mt-3 text-sm leading-7 text-muted">{section.text}</p>
-              </div>
-            ))}
+          <section aria-labelledby="privacy-policy-heading" className="space-y-4">
+            <div>
+              <div className="eyebrow">Personas datu apstrāde</div>
+              <h2 id="privacy-policy-heading" className="mt-3 text-2xl font-black text-dark-purple sm:text-3xl">
+                Privātuma politika
+              </h2>
+            </div>
+            <div className="grid gap-4 lg:grid-cols-2">
+              {privacySections.map((section) => <PolicySection key={section.title} section={section} />)}
+            </div>
           </section>
 
-          <section className="rounded-[1.75rem] border border-white/80 bg-white/85 p-5 shadow-soft backdrop-blur-sm sm:p-6">
-            <div className="eyebrow">
-              <span>✦</span>
-              <span>Ko atcerēties</span>
+          <section aria-labelledby="terms-heading" className="space-y-4">
+            <div>
+              <div className="eyebrow">Drošai un cieņpilnai videi</div>
+              <h2 id="terms-heading" className="mt-3 text-2xl font-black text-dark-purple sm:text-3xl">
+                Lietošanas noteikumi
+              </h2>
             </div>
-            <div className="mt-4 grid gap-3 sm:grid-cols-2">
-              {[
-                'Lieto mājaslapu tikai paredzētajiem mērķiem',
-                'Sargi sava konta drošību un piekļuves datus',
-                'Ievadi tikai patiesu un aktuālu informāciju',
-                'Sazinies ar administratoru, ja rodas jautājumi',
-              ].map((item) => (
-                <div
-                  key={item}
-                  className="rounded-2xl bg-medium-purple/10 px-4 py-3 text-sm font-semibold text-dark-purple"
-                >
-                  {item}
-                </div>
-              ))}
+            <div className="grid gap-4 lg:grid-cols-2">
+              {termsSections.map((section) => <PolicySection key={section.title} section={section} />)}
             </div>
+          </section>
+
+          <section className="rounded-[1.75rem] border border-white/80 bg-white/85 p-5 text-sm leading-7 text-muted shadow-soft backdrop-blur-sm sm:p-6">
+            <p>
+              Datu pieprasījumiem: <a className="font-bold text-medium-purple underline" href="mailto:kristskarlisgrundmanis@gmail.com">kristskarlisgrundmanis@gmail.com</a>.
+              Uzraudzības iestāde: <a className="font-bold text-medium-purple underline" href="https://www.dvi.gov.lv/" target="_blank" rel="noopener noreferrer">Datu valsts inspekcija</a>.
+            </p>
+            <p className="mt-3 text-xs">
+              Šī informācija ir sagatavota, balstoties uz pašlaik pārbaudāmo vietnes funkcionalitāti. Tā pati par sevi nav juridisks apliecinājums pilnīgai VDAR atbilstībai.
+            </p>
           </section>
         </div>
       </div>

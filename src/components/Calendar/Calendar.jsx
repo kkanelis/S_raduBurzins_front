@@ -211,8 +211,47 @@ function Calendar() {
             </div>
           )}
 
-          <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_230px]">
-            <div className="card surface-strong p-2.5 sm:p-4 lg:p-5">
+          <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_260px]">
+            <aside
+              aria-labelledby="calendar-legend-title"
+              className="order-first h-fit rounded-2xl border border-white/80 bg-white/80 p-4 shadow-soft sm:p-5 lg:sticky lg:top-5 lg:order-last"
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <h2 id="calendar-legend-title" className="text-sm font-extrabold text-dark-purple">
+                    Notikumu veidi
+                  </h2>
+                  <p className="mt-1 text-xs text-muted">Krāsainie punkti atzīmē dienas notikumus.</p>
+                </div>
+                <span aria-hidden="true" className="text-lg leading-none">✦</span>
+              </div>
+              <ul className="mt-4 grid grid-cols-2 gap-2 sm:gap-3 lg:grid-cols-1">
+                <li className="flex min-w-0 items-center gap-2.5 rounded-xl border border-[#d8e0fb] bg-[#f7f8ff] px-3 py-2.5">
+                  <span aria-hidden="true" className="h-3 w-3 shrink-0 rounded-full bg-[#5372c9] ring-4 ring-[#5372c9]/10" />
+                  <span className="min-w-0 text-xs font-bold leading-tight text-dark-purple sm:text-sm">Vārda dienas</span>
+                </li>
+                <li className="flex min-w-0 items-center gap-2.5 rounded-xl border border-[#efdfc0] bg-[#fffaf0] px-3 py-2.5">
+                  <span aria-hidden="true" className="h-3 w-3 shrink-0 rounded-full bg-[#b77a23] ring-4 ring-[#b77a23]/10" />
+                  <span className="min-w-0 text-xs font-bold leading-tight text-dark-purple sm:text-sm">Uzvārda dienas</span>
+                </li>
+                <li className="flex min-w-0 items-center gap-2.5 rounded-xl border border-[#cfe0d0] bg-[#f5faf4] px-3 py-2.5">
+                  <span aria-hidden="true" className="h-3 w-3 shrink-0 rounded-full bg-[#54805a] ring-4 ring-[#54805a]/10" />
+                  <span className="min-w-0 text-xs font-bold leading-tight text-dark-purple sm:text-sm">Dzimšanas dienas</span>
+                </li>
+                <li className="flex min-w-0 items-center gap-2.5 rounded-xl border border-[#efcfbd] bg-[#fff8f4] px-3 py-2.5">
+                  <span aria-hidden="true" className="h-3 w-3 shrink-0 rounded-full bg-[#df8058] ring-4 ring-[#df8058]/10" />
+                  <span className="min-w-0 text-xs font-bold leading-tight text-dark-purple sm:text-sm">Īpaši notikumi</span>
+                </li>
+              </ul>
+              <div className="mt-3 flex items-center gap-2 border-t border-black/5 pt-3 text-xs text-muted">
+                <span aria-hidden="true" className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[#315844] px-1 text-[10px] font-extrabold text-white">
+                  {new Date().getDate()}
+                </span>
+                <span>Šodien</span>
+              </div>
+            </aside>
+
+            <div className="order-last card surface-strong min-w-0 p-2.5 sm:p-4 lg:order-first lg:p-5">
               <div className="mb-3 flex flex-col gap-3 sm:mb-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-center justify-between gap-2 sm:justify-start sm:gap-3">
                   <button
@@ -220,11 +259,11 @@ function Calendar() {
                     onClick={handlePreviousMonth}
                     aria-label="Iepriekšējais mēnesis"
                     title="Iepriekšējais mēnesis"
-                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-black/10 bg-white text-lg font-bold text-dark-purple transition hover:bg-[#f1f4ef] focus:outline-none focus:ring-2 focus:ring-medium-purple/30"
+                    className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-black/10 bg-white text-lg font-bold text-dark-purple shadow-sm transition hover:bg-[#f1f4ef] focus:outline-none focus:ring-2 focus:ring-medium-purple/30 sm:rounded-full"
                   >
                     <span aria-hidden="true">←</span>
                   </button>
-                  <h2 className="min-w-0 flex-1 text-center text-lg font-black capitalize text-dark-purple sm:min-w-[12rem] sm:text-xl">
+                  <h2 className="min-w-0 flex-1 text-center text-base font-black capitalize text-dark-purple sm:min-w-[12rem] sm:text-xl">
                     {monthLabel}
                   </h2>
                   <button
@@ -232,7 +271,7 @@ function Calendar() {
                     onClick={handleNextMonth}
                     aria-label="Nākamais mēnesis"
                     title="Nākamais mēnesis"
-                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-black/10 bg-white text-lg font-bold text-dark-purple transition hover:bg-[#f1f4ef] focus:outline-none focus:ring-2 focus:ring-medium-purple/30"
+                    className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-black/10 bg-white text-lg font-bold text-dark-purple shadow-sm transition hover:bg-[#f1f4ef] focus:outline-none focus:ring-2 focus:ring-medium-purple/30 sm:rounded-full"
                   >
                     <span aria-hidden="true">→</span>
                   </button>
@@ -246,7 +285,7 @@ function Calendar() {
                 {WEEKDAY_LABELS.map((label, index) => (
                   <div
                     key={`${label}-${index}`}
-                    className="rounded-md bg-[#f1f4ef] px-0.5 py-2 text-center text-[10px] font-extrabold text-[#526456] sm:rounded-lg sm:py-2.5 sm:text-xs"
+                    className={`rounded-md px-0.5 py-2 text-center text-[10px] font-extrabold sm:rounded-lg sm:py-2.5 sm:text-xs ${index >= 5 ? 'bg-[#ece8f0] text-[#584d62]' : 'bg-[#f1f4ef] text-[#526456]'}`}
                   >
                     {label}
                   </div>
@@ -306,10 +345,10 @@ function Calendar() {
                       </div>
 
                       <div className="mt-auto flex min-h-2 items-center gap-1.5 pt-1" aria-hidden="true">
-                        {names.length > 0 && <span className="h-1.5 w-1.5 rounded-full bg-[#5372c9]" />}
-                        {hasSurnameDay && <span className="h-1.5 w-1.5 rounded-full bg-[#b77a23]" />}
-                        {hasBirthday && <span className="h-1.5 w-1.5 rounded-full bg-[#54805a]" />}
-                        {hasEvent && <span className="h-1.5 w-1.5 rounded-full bg-[#df8058]" />}
+                        {names.length > 0 && <span className="h-2 w-2 rounded-full bg-[#5372c9] ring-1 ring-white" />}
+                        {hasSurnameDay && <span className="h-2 w-2 rounded-full bg-[#b77a23] ring-1 ring-white" />}
+                        {hasBirthday && <span className="h-2 w-2 rounded-full bg-[#54805a] ring-1 ring-white" />}
+                        {hasEvent && <span className="h-2 w-2 rounded-full bg-[#df8058] ring-1 ring-white" />}
                       </div>
                     </button>
                   );
@@ -317,27 +356,6 @@ function Calendar() {
               </div>
             </div>
 
-            <aside className="rounded-xl border border-white/80 bg-white/75 p-4 shadow-soft sm:p-5">
-              <h2 className="text-sm font-extrabold text-dark-purple">Leģenda</h2>
-              <div className="mt-3 grid grid-cols-2 gap-2 text-xs text-muted sm:grid-cols-1 sm:gap-3 sm:text-sm">
-                <div className="flex items-center gap-2">
-                  <span aria-hidden="true" className="h-2.5 w-2.5 shrink-0 rounded-full bg-[#5372c9]" />
-                  <span>Vārda dienas</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span aria-hidden="true" className="h-2.5 w-2.5 shrink-0 rounded-full bg-[#b77a23]" />
-                  <span>Uzvārda dienas</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span aria-hidden="true" className="h-2.5 w-2.5 shrink-0 rounded-full bg-[#54805a]" />
-                  <span>Dzimšanas dienas</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span aria-hidden="true" className="h-2.5 w-2.5 shrink-0 rounded-full bg-[#df8058]" />
-                  <span>Īpaši notikumi</span>
-                </div>
-              </div>
-            </aside>
           </div>
         </div>
       </div>

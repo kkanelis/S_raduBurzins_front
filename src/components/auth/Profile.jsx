@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '../../context/useAuth';
 import api from '../../services/api';
+import ProfileAvatar from './ProfileAvatar';
 
 const profileInputClassName = 'w-full min-w-0 rounded-lg border border-[#dedfd7] bg-[#fcfcfa] px-3.5 py-2.5 text-sm text-dark-purple shadow-sm outline-none transition placeholder:text-muted/70 focus:border-[#61836a] focus:bg-white focus:ring-4 focus:ring-[#61836a]/10';
 
@@ -15,7 +16,6 @@ function Profile() {
     email: user?.email || '',
   });
   const [avatarFile, setAvatarFile] = useState(null);
-  const [avatarPreview, setAvatarPreview] = useState('');
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
@@ -26,20 +26,6 @@ function Profile() {
     if (Number.isNaN(date.getTime())) return '';
     return date.toISOString().split('T')[0];
   };
-
-  useEffect(() => {
-    if (!avatarFile) {
-      setAvatarPreview(user?.avatar_path
-        ? `${api.defaults.baseURL}/storage/${user.avatar_path}?t=${user.updated_at || Date.now()}`
-        : '');
-      return undefined;
-    }
-
-    const previewUrl = URL.createObjectURL(avatarFile);
-    setAvatarPreview(previewUrl);
-
-    return () => URL.revokeObjectURL(previewUrl);
-  }, [avatarFile, user?.avatar_path, user?.updated_at]);
 
   if (!user) return <div className="py-8 text-center">Nav lietotāja datu.</div>;
 
@@ -95,20 +81,10 @@ function Profile() {
       <div className="overflow-hidden rounded-xl border border-[#e4e5dd] bg-white shadow-[0_18px_50px_rgba(39,48,39,0.1)]">
         <header className="border-b border-[#dfe7dc] bg-[#edf3ed] px-5 py-6 sm:px-8 sm:py-8">
           <div className="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-center sm:gap-5">
-            <div className="relative shrink-0">
-            {avatarPreview ? (
-              <img
-                src={avatarPreview}
-                alt="Profila bilde"
-                className="h-20 w-20 rounded-full object-cover shadow-md ring-4 ring-white sm:h-24 sm:w-24"
-              />
-            ) : (
-              <div className="flex h-20 w-20 items-center justify-center rounded-full bg-[#526f59] text-2xl font-extrabold text-white shadow-md ring-4 ring-white sm:h-24 sm:w-24">
-                {user.first_name?.[0]}
-                {user.last_name?.[0]}
-              </div>
-            )}
-          </div>
+            <ProfileAvatar
+              user={user}
+              className="h-20 w-20 text-2xl shadow-md ring-4 ring-white sm:h-24 sm:w-24"
+            />
             <div className="min-w-0">
               <div className="text-xs font-bold uppercase text-[#58735e]">Mans profils</div>
               <h1 className="mt-1 break-words text-2xl font-black text-dark-purple sm:text-3xl">

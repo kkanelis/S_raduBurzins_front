@@ -7,6 +7,7 @@ import Welcome from "./components/Info/Welcome/Welcome";
 import Login from "./components/auth/Login";
 import Register from "./components/auth/Register";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
+import GuestOnlyRoute from "./components/auth/GuestOnlyRoute";
 import Footer from "./components/Footer/Footer";
 import "./index.css";
 
@@ -39,8 +40,22 @@ const AppContent = () => {
           >
             <Routes>
               <Route path="/" element={user ? <RegWelcome /> : <Welcome />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
+              <Route
+                path="/login"
+                element={
+                  <GuestOnlyRoute>
+                    <Login />
+                  </GuestOnlyRoute>
+                }
+              />
+              <Route
+                path="/register"
+                element={
+                  <GuestOnlyRoute>
+                    <Register />
+                  </GuestOnlyRoute>
+                }
+              />
               <Route path="/terms" element={<Terms />} />
               <Route path="/tutorial" element={<Tutorial />} />
               <Route

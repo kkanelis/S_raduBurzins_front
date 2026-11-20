@@ -76,6 +76,14 @@ function Footer() {
             <div className="mt-5 rounded-2xl bg-white/15 px-4 py-3 text-sm font-medium text-off-white/90">
               Izstrādāja
               <div className="mt-1 font-black text-off-white">Krists Kārlis Grundmanis</div>
+              <a
+                href="https://buymeacoffee.com/kanelis"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-3 inline-flex rounded-full border border-white/25 bg-white/10 px-3 py-1.5 text-xs font-bold text-off-white no-underline transition hover:bg-white/20"
+              >
+                ☕ Atbalsti manu darbu
+              </a>
             </div>
           </div>
         </div>
