@@ -60,15 +60,8 @@ function Footer() {
               <p>
                 E-pasts
                 <br />
-                <a href="mailto:kristskarlisgrundmanis@gmail.com" className="font-semibold text-off-white no-underline">
-                  kristskarlisgrundmanis@gmail.com
-                </a>
-              </p>
-              <p>
-                Tālrunis
-                <br />
-                <a href="tel:+37125671299" className="font-semibold text-off-white no-underline">
-                  +371 25671299
+                <a href="mailto:mail@raduburzins.lv" className="font-semibold text-off-white no-underline">
+                  mail@raduburzins.lv
                 </a>
               </p>
             </div>
@@ -82,7 +75,7 @@ function Footer() {
                 rel="noopener noreferrer"
                 className="mt-3 inline-flex rounded-full border border-white/25 bg-white/10 px-3 py-1.5 text-xs font-bold text-off-white no-underline transition hover:bg-white/20"
               >
-                ☕ Atbalsti manu darbu
+                ☕ Atbalsti mājaslapas izstrādi
               </a>
             </div>
           </div>
