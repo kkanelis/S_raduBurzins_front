@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import api from '../../../services/api';
@@ -39,6 +39,11 @@ function getNextAnnualDate(dateValue, today) {
 }
 
 function RegWelcome() {
+  const [feedbackType, setFeedbackType] = useState('Ideja');
+  const [feedbackMessage, setFeedbackMessage] = useState('');
+  const [feedbackStatus, setFeedbackStatus] = useState('');
+  const [sendingFeedback, setSendingFeedback] = useState(false);
+
   const { data: nameDaysResponse = [], isLoading: loadingNameDays, isError: nameDaysError } = useQuery({
     queryKey: ['namedays'],
     queryFn: async () => {
@@ -141,6 +146,28 @@ function RegWelcome() {
   const loadingToday = loadingNameDays || loadingSurnameDays;
   const todayError = nameDaysError || surnameDaysError;
 
+  const submitFeedback = async (event) => {
+    event.preventDefault();
+    setSendingFeedback(true);
+    setFeedbackStatus('');
+
+    try {
+      const response = await api.post('/api/feedback', {
+        type: feedbackType,
+        message: feedbackMessage,
+      });
+      setFeedbackMessage('');
+      setFeedbackStatus(response.data.message);
+    } catch (error) {
+      const validationMessage = Object.values(error.response?.data?.errors || {}).flat()[0];
+      setFeedbackStatus(
+        validationMessage || error.response?.data?.message || 'Neizdevās nosūtīt ziņu. Mēģini vēlreiz.'
+      );
+    } finally {
+      setSendingFeedback(false);
+    }
+  };
+
   return (
     <div className="relative overflow-hidden">
       <div className="absolute inset-0 hero-grid opacity-50 pointer-events-none" />
@@ -218,17 +245,58 @@ function RegWelcome() {
             )}
           </section>
 
-          <nav aria-label="Ātrās darbības" className="grid grid-cols-2 gap-2 lg:hidden">
+          <div className="grid gap-3 lg:hidden">
             <Link to="/calendar" className="flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[#684b82] px-3 py-3 text-center text-sm font-bold text-white no-underline shadow-sm">
               <span aria-hidden="true">＋</span> Pievienot notikumu
             </Link>
-            <Link to="/family-chat" className="flex min-h-12 items-center justify-center gap-2 rounded-xl border border-[#e4ddea] bg-white px-3 py-3 text-center text-sm font-bold text-dark-purple no-underline shadow-sm">
-              <span aria-hidden="true">💬</span> Ģimenes čats
-            </Link>
-            <Link to="/albums" className="col-span-2 flex min-h-12 items-center justify-center gap-2 rounded-xl border border-[#e4ddea] bg-white px-3 py-3 text-center text-sm font-bold text-dark-purple no-underline shadow-sm">
-              <span aria-hidden="true">📷</span> Pievienot ģimenes foto
-            </Link>
-          </nav>
+            <section className="card surface-strong p-4 sm:p-5">
+              <h2 className="text-lg font-black text-dark-purple">Atsauksmes un idejas</h2>
+              <p className="mt-1 text-sm text-muted">Tavs ieteikums tiks nosūtīts vietnes veidotājam.</p>
+              <form onSubmit={submitFeedback} className="mt-4 space-y-3">
+                <div>
+                  <label htmlFor="feedback-type" className="mb-1.5 block text-sm font-bold text-dark-purple">
+                    Ziņas veids
+                  </label>
+                  <select
+                    id="feedback-type"
+                    value={feedbackType}
+                    onChange={(event) => setFeedbackType(event.target.value)}
+                    className="w-full rounded-lg border border-[#dedfd7] bg-white px-3 py-2.5 text-sm text-dark-purple outline-none focus:border-[#684b82] focus:ring-4 focus:ring-[#684b82]/10"
+                  >
+                    <option value="Ideja">Ideja</option>
+                    <option value="Atsauksme">Atsauksme</option>
+                  </select>
+                </div>
+                <div>
+                  <label htmlFor="feedback-message" className="mb-1.5 block text-sm font-bold text-dark-purple">
+                    Tava ziņa
+                  </label>
+                  <textarea
+                    id="feedback-message"
+                    value={feedbackMessage}
+                    onChange={(event) => setFeedbackMessage(event.target.value)}
+                    required
+                    minLength={5}
+                    maxLength={3000}
+                    rows={4}
+                    placeholder="Ko tu vēlētos uzlabot?"
+                    className="w-full resize-y rounded-lg border border-[#dedfd7] bg-white px-3 py-2.5 text-sm text-dark-purple outline-none placeholder:text-muted/70 focus:border-[#684b82] focus:ring-4 focus:ring-[#684b82]/10"
+                  />
+                  <p className="mt-1 text-right text-xs text-muted">{feedbackMessage.length}/3000</p>
+                </div>
+                <button
+                  type="submit"
+                  disabled={sendingFeedback || feedbackMessage.trim().length < 5}
+                  className="flex min-h-11 w-full items-center justify-center rounded-lg bg-[#684b82] px-4 py-2.5 text-sm font-bold text-white transition hover:bg-[#563b70] disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {sendingFeedback ? 'Sūta...' : 'Nosūtīt'}
+                </button>
+                {feedbackStatus && (
+                  <p role="status" className="text-sm text-dark-purple">{feedbackStatus}</p>
+                )}
+              </form>
+            </section>
+          </div>
 
           <div className="grid gap-4 lg:grid-cols-[minmax(0,1.35fr)_minmax(250px,0.65fr)]">
             <section className="card surface-strong p-4 sm:p-6">
