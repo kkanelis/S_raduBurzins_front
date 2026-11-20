@@ -65,6 +65,17 @@ function NavBar() {
             <div className="hidden items-center gap-2 sm:flex lg:mb-6 lg:flex-col lg:items-stretch lg:rounded-lg lg:border lg:border-white/90 lg:bg-white/75 lg:p-3">
               {user ? (
                 <>
+                  {user.is_admin && (
+                    <a
+                      href="https://api.raduburzins.lv/admin"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-center gap-2 rounded-lg border border-[#d8c8e8] bg-[#eee7f5] px-4 py-3 text-sm font-bold text-[#382d5b] no-underline transition hover:bg-[#e4d8ef] lg:w-full"
+                    >
+                      <span aria-hidden="true">⚙️</span>
+                      Admin panelis
+                    </a>
+                  )}
                   <Link to="/profile" className="hidden items-center gap-3 rounded-lg bg-[#f4eee9] px-3 py-3 text-left no-underline transition hover:bg-[#eee7f5] lg:flex">
                     <ProfileAvatar user={user} className="h-10 w-10" />
                     <div className="min-w-0">
@@ -130,6 +141,18 @@ function NavBar() {
               <div className="grid gap-2">
                 {user ? (
                   <>
+                    {user.is_admin && (
+                      <a
+                        href="https://api.raduburzins.lv/admin"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={closeMenu}
+                        className="flex items-center gap-3 rounded-lg border border-[#d8c8e8] bg-[#eee7f5] px-3.5 py-3 font-bold text-[#382d5b] no-underline transition hover:bg-[#e4d8ef]"
+                      >
+                        <span className="text-lg" aria-hidden="true">⚙️</span>
+                        <span>Admin panelis</span>
+                      </a>
+                    )}
                     <Link
                       to="/profile"
                       onClick={closeMenu}
