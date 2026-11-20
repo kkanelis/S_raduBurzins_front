@@ -107,6 +107,32 @@ function RegWelcome() {
       .slice(0, 5);
   }, [specialDays, usersStatus.users]);
 
+  const todayHighlights = useMemo(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const events = specialDays
+      .map((event) => ({
+        id: `event-${event.id}`,
+        title: event.title,
+        date: event.repeats ? getNextAnnualDate(event.date, today) : parseLocalDate(event.date),
+        type: 'Pasākums',
+      }))
+      .filter((item) => item.date?.getTime() === today.getTime());
+
+    const birthdays = (Array.isArray(usersStatus.users) ? usersStatus.users : [])
+      .filter((user) => user.date_of_birth)
+      .map((user) => ({
+        id: `birthday-${user.id}`,
+        title: `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'Dzimšanas diena',
+        date: getNextAnnualDate(user.date_of_birth, today),
+        type: 'Dzimšanas diena',
+      }))
+      .filter((item) => item.date?.getTime() === today.getTime());
+
+    return [...events, ...birthdays];
+  }, [specialDays, usersStatus.users]);
+
   const loading = loadingEvents || loadingUsers;
   const hasError = eventsError || usersError;
   const today = new Date();
@@ -135,6 +161,74 @@ function RegWelcome() {
               </div>
             </div>
           </section>
+
+          <section className="card surface-strong p-4 sm:p-5 lg:hidden">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-[0.12em] text-medium-purple">Šodien ģimenē</p>
+                <h2 className="mt-1 text-xl font-black capitalize text-dark-purple">
+                  {today.toLocaleDateString('lv-LV', { weekday: 'long', day: 'numeric', month: 'long' })}
+                </h2>
+              </div>
+              <span aria-hidden="true" className="text-2xl">✦</span>
+            </div>
+
+            {hasError ? (
+              <p role="alert" className="mt-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+                Neizdevās ielādēt šodienas informāciju.
+              </p>
+            ) : loading || loadingToday ? (
+              <p className="mt-3 text-sm text-muted">Ielādē šodienas notikumus...</p>
+            ) : (
+              <div className="mt-4 space-y-3">
+                {todayHighlights.length > 0 ? (
+                  <div className="space-y-2">
+                    {todayHighlights.map((item) => (
+                      <Link
+                        key={item.id}
+                        to="/calendar"
+                        className="flex items-center gap-3 rounded-xl bg-[#f5f0f8] px-3 py-2.5 no-underline"
+                      >
+                        <span aria-hidden="true" className="text-lg">{item.type === 'Dzimšanas diena' ? '🎂' : '📅'}</span>
+                        <span className="min-w-0">
+                          <span className="block truncate text-sm font-bold text-dark-purple">{item.title}</span>
+                          <span className="block text-xs text-muted">{item.type}</span>
+                        </span>
+                      </Link>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted">Šodien nav ieplānotu ģimenes pasākumu.</p>
+                )}
+
+                <div className="border-t border-[#ece9e5] pt-3">
+                  <h3 className="text-xs font-bold uppercase text-medium-purple">Vārda dienas</h3>
+                  {todayError ? (
+                    <p role="alert" className="mt-1 text-sm text-red-700">Neizdevās ielādēt vārda dienas.</p>
+                  ) : todaysNameDays.length > 0 ? (
+                    <p className="mt-1 text-sm font-semibold text-dark-purple">{todaysNameDays.join(', ')}</p>
+                  ) : (
+                    <p className="mt-1 text-sm text-muted">Šodien vārda dienu nav.</p>
+                  )}
+                  {todaysSurnameDays.length > 0 && (
+                    <p className="mt-1 text-xs text-muted">Uzvārda dienas: {todaysSurnameDays.join(', ')}</p>
+                  )}
+                </div>
+              </div>
+            )}
+          </section>
+
+          <nav aria-label="Ātrās darbības" className="grid grid-cols-2 gap-2 lg:hidden">
+            <Link to="/calendar" className="flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[#684b82] px-3 py-3 text-center text-sm font-bold text-white no-underline shadow-sm">
+              <span aria-hidden="true">＋</span> Pievienot notikumu
+            </Link>
+            <Link to="/family-chat" className="flex min-h-12 items-center justify-center gap-2 rounded-xl border border-[#e4ddea] bg-white px-3 py-3 text-center text-sm font-bold text-dark-purple no-underline shadow-sm">
+              <span aria-hidden="true">💬</span> Ģimenes čats
+            </Link>
+            <Link to="/albums" className="col-span-2 flex min-h-12 items-center justify-center gap-2 rounded-xl border border-[#e4ddea] bg-white px-3 py-3 text-center text-sm font-bold text-dark-purple no-underline shadow-sm">
+              <span aria-hidden="true">📷</span> Pievienot ģimenes foto
+            </Link>
+          </nav>
 
           <div className="grid gap-4 lg:grid-cols-[minmax(0,1.35fr)_minmax(250px,0.65fr)]">
             <section className="card surface-strong p-4 sm:p-6">
@@ -179,7 +273,7 @@ function RegWelcome() {
               )}
             </section>
 
-            <section className="card surface-strong p-4 sm:p-6">
+            <section className="card surface-strong hidden p-4 sm:p-6 lg:block">
               <div className="mb-1 flex items-center justify-between gap-3">
                 <h2 className="text-lg font-black text-dark-purple sm:text-xl">Šodiena</h2>
               </div>
