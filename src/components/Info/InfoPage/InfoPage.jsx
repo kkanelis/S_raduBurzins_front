@@ -1,5 +1,5 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 
 const highlights = [
   {
@@ -19,7 +19,57 @@ const highlights = [
   },
 ];
 
+const updates = [
+  {
+    title: 'Radu pērles',
+    text: 'Tagad ģimenes citātus, notikumus un atmiņas vari dalīties ar kartītēs ar foto un video. Satura atvēršanai papildus logs vairs nav nepieciešams.',
+    icon: '💎',
+    label: 'Jauna sadaļa',
+  },
+  {
+    title: 'Radu pērļu reakcijas',
+    text: 'Uz katru pērli tagad vari ātri reaģēt ar 😂, ❤️, 🤯 vai 🏆. Vienu lietotāju aktīvās reakcijas var mainīt vai noņemt.',
+    icon: '🎉',
+    label: 'Jaunums',
+  },
+  {
+    title: 'Pārskatīta navigācija',
+    text: 'Sadaļas ir sakārtotas grupās “Pamatā”, “Ģimenes saturs” un “Pārvaldība”, tāpēc labākā izvēlne datorā un telefonā ir vieglāk saprotama.',
+    icon: '🧭',
+    label: 'Uzlabojums',
+  },
+  {
+    title: 'Atsauksmes un idejas',
+    text: 'Tagad vari nosūtīt vietnes veidotājam ieteikumu vai atsauksmi tieši no sākumlapas.',
+    icon: '💡',
+    label: 'Jaunums',
+  },
+  {
+    title: 'Sākumlapa telefonam',
+    text: 'Telefona sākumlapā vari ātri apskatīt šodienas ģimenes notikumus un vārda dienas.',
+    icon: '📱',
+    label: 'Uzlabojums',
+  },
+  {
+    title: 'E-pasta apstiprināšana',
+    text: 'Reģistrējoties kontu var apstiprināt ar e-pastā saņemtu saiti.',
+    icon: '✉️',
+    label: 'Jaunums',
+  },
+];
+
 function InfoPage() {
+  const location = useLocation();
+
+  useEffect(() => {
+    if (location.hash !== '#site-updates') return;
+
+    document.getElementById('site-updates')?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start',
+    });
+  }, [location.hash]);
+
   return (
     <div className="relative overflow-hidden">
       <div className="absolute inset-0 hero-grid opacity-40 pointer-events-none" />
@@ -59,6 +109,49 @@ function InfoPage() {
                   </div>
                 ))}
               </div>
+            </div>
+          </section>
+
+          <section id="site-updates" aria-labelledby="site-updates-heading" className="scroll-mt-6 rounded-[1.75rem] border border-white/80 bg-white/85 p-5 shadow-soft backdrop-blur-sm sm:p-6 lg:p-7">
+            <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <div className="eyebrow">
+                  <span aria-hidden="true">✦</span>
+                  <span>Kas jauns</span>
+                </div>
+                <h2 id="site-updates-heading" className="mt-2 text-2xl font-black text-dark-purple sm:text-3xl">
+                  Vietnes atjauninājumi
+                </h2>
+              </div>
+              <p className="max-w-md text-sm leading-6 text-muted">
+                Jaunākās iespējas un uzlabojumi, kas pievienoti vietnei.
+              </p>
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-2">
+              {updates.map((update, index) => (
+                <article
+                  key={update.title}
+                  className={`rounded-2xl border p-4 sm:p-5 ${
+                    index === 0
+                      ? 'border-[#d9c9e8] bg-gradient-to-br from-[#f7f2fb] to-white'
+                      : 'border-[#ece8ef] bg-white/80'
+                  }`}
+                >
+                  <div className="flex items-start gap-3">
+                    <span aria-hidden="true" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#eee7f5] text-xl">
+                      {update.icon}
+                    </span>
+                    <div className="min-w-0">
+                      <span className="inline-flex rounded-full bg-[#f0ebf4] px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wide text-[#684b82]">
+                        {index === 0 ? 'Jaunākais' : update.label}
+                      </span>
+                      <h3 className="mt-2 text-base font-black text-dark-purple">{update.title}</h3>
+                      <p className="mt-1 text-sm leading-6 text-muted">{update.text}</p>
+                    </div>
+                  </div>
+                </article>
+              ))}
             </div>
           </section>
 

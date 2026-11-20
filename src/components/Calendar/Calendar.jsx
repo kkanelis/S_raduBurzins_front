@@ -238,8 +238,8 @@ function Calendar() {
                   <span aria-hidden="true" className="h-3 w-3 shrink-0 rounded-full bg-[#54805a] ring-4 ring-[#54805a]/10" />
                   <span className="min-w-0 text-xs font-bold leading-tight text-dark-purple sm:text-sm">Dzimšanas dienas</span>
                 </li>
-                <li className="flex min-w-0 items-center gap-2.5 rounded-xl border border-[#efcfbd] bg-[#fff8f4] px-3 py-2.5">
-                  <span aria-hidden="true" className="h-3 w-3 shrink-0 rounded-full bg-[#df8058] ring-4 ring-[#df8058]/10" />
+                <li className="flex min-w-0 items-center gap-2.5 rounded-xl border border-[#DC143C] bg-[#FFEDF0] px-3 py-2.5">
+                  <span aria-hidden="true" className="h-3 w-3 shrink-0 rounded-full bg-[#DC143C] ring-4 ring-[#DC143C]/10" />
                   <span className="min-w-0 text-xs font-bold leading-tight text-dark-purple sm:text-sm">Īpaši notikumi</span>
                 </li>
               </ul>
@@ -348,7 +348,7 @@ function Calendar() {
                         {names.length > 0 && <span className="h-2 w-2 rounded-full bg-[#5372c9] ring-1 ring-white" />}
                         {hasSurnameDay && <span className="h-2 w-2 rounded-full bg-[#b77a23] ring-1 ring-white" />}
                         {hasBirthday && <span className="h-2 w-2 rounded-full bg-[#54805a] ring-1 ring-white" />}
-                        {hasEvent && <span className="h-2 w-2 rounded-full bg-[#df8058] ring-1 ring-white" />}
+                        {hasEvent && <span className="h-2 w-2 rounded-full bg-[#DC143C] ring-1 ring-white" />}
                       </div>
                     </button>
                   );

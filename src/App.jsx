@@ -21,6 +21,7 @@ const Profile = lazy(() => import("./components/auth/Profile"));
 const ChristmasLottery = lazy(() => import("./components/Christmas/ChristmasLottery"));
 const MyEvents = lazy(() => import("./components/MyEvents/MyEvents"));
 const Albums = lazy(() => import("./components/Albums/Albums"));
+const FamilyPearls = lazy(() => import("./components/FamilyPearls/FamilyPearls"));
 const Tutorial = lazy(() => import("./components/Info/Tutorial/Tutorial"));
 
 // App root and routing
@@ -113,6 +114,14 @@ const AppContent = () => {
                 element={
                   <ProtectedRoute>
                     <Albums />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/family-pearls"
+                element={
+                  <ProtectedRoute>
+                    <FamilyPearls />
                   </ProtectedRoute>
                 }
               />

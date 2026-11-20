@@ -186,6 +186,14 @@ function RegWelcome() {
                   {loading ? 'Ielādē tuvākos datumus...' : 'Tuvākie notikumi un ģimenes jaunumi vienuviet.'}
                 </p>
               </div>
+              <Link
+                to="/info#site-updates"
+                className="inline-flex min-h-11 items-center justify-center gap-2 self-start rounded-xl border border-[#d9c9e8] bg-[#f7f2fb] px-4 py-2.5 text-sm font-bold text-[#563b70] no-underline shadow-sm transition hover:-translate-y-0.5 hover:bg-[#eee7f5] hover:shadow-md sm:self-center"
+              >
+                <span aria-hidden="true">✨</span>
+                Jaunākie atjauninājumi
+                <span aria-hidden="true">→</span>
+              </Link>
             </div>
           </section>
 
@@ -250,56 +258,6 @@ function RegWelcome() {
               <span aria-hidden="true">＋</span> Pievienot notikumu
             </Link>
           </div>
-
-          <section className="card surface-strong p-4 sm:p-6">
-            <h2 className="text-lg font-black text-dark-purple sm:text-xl">Atsauksmes un idejas</h2>
-            <p className="mt-1 text-sm text-muted">Tavs ieteikums tiks nosūtīts vietnes veidotājam.</p>
-            <form onSubmit={submitFeedback} className="mt-4 grid gap-3 sm:grid-cols-[minmax(160px,0.3fr)_minmax(0,1fr)]">
-              <div>
-                <label htmlFor="feedback-type" className="mb-1.5 block text-sm font-bold text-dark-purple">
-                  Ziņas veids
-                </label>
-                <select
-                  id="feedback-type"
-                  value={feedbackType}
-                  onChange={(event) => setFeedbackType(event.target.value)}
-                  className="w-full rounded-lg border border-[#dedfd7] bg-white px-3 py-2.5 text-sm text-dark-purple outline-none focus:border-[#684b82] focus:ring-4 focus:ring-[#684b82]/10"
-                >
-                  <option value="Ideja">Ideja</option>
-                  <option value="Atsauksme">Atsauksme</option>
-                </select>
-              </div>
-              <div>
-                <label htmlFor="feedback-message" className="mb-1.5 block text-sm font-bold text-dark-purple">
-                  Tava ziņa
-                </label>
-                <textarea
-                  id="feedback-message"
-                  value={feedbackMessage}
-                  onChange={(event) => setFeedbackMessage(event.target.value)}
-                  required
-                  minLength={5}
-                  maxLength={3000}
-                  rows={4}
-                  placeholder="Ko tu vēlētos uzlabot?"
-                  className="w-full resize-y rounded-lg border border-[#dedfd7] bg-white px-3 py-2.5 text-sm text-dark-purple outline-none placeholder:text-muted/70 focus:border-[#684b82] focus:ring-4 focus:ring-[#684b82]/10"
-                />
-                <p className="mt-1 text-right text-xs text-muted">{feedbackMessage.length}/3000</p>
-              </div>
-              <div className="sm:col-start-2">
-                <button
-                  type="submit"
-                  disabled={sendingFeedback || feedbackMessage.trim().length < 5}
-                  className="flex min-h-11 w-full items-center justify-center rounded-lg bg-[#684b82] px-4 py-2.5 text-sm font-bold text-white transition hover:bg-[#563b70] disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto sm:min-w-36"
-                >
-                  {sendingFeedback ? 'Sūta...' : 'Nosūtīt'}
-                </button>
-                {feedbackStatus && (
-                  <p role="status" className="mt-2 text-sm text-dark-purple">{feedbackStatus}</p>
-                )}
-              </div>
-            </form>
-          </section>
 
           <div className="grid gap-4 lg:grid-cols-[minmax(0,1.35fr)_minmax(250px,0.65fr)]">
             <section className="card surface-strong p-4 sm:p-6">
@@ -393,6 +351,88 @@ function RegWelcome() {
               )}
             </section>
           </div>
+
+          <section className="overflow-hidden rounded-2xl border border-[#e6deeb] bg-white shadow-[0_16px_44px_rgba(47,32,58,0.08)]">
+            <div className="grid lg:grid-cols-[minmax(230px,0.72fr)_minmax(0,1.8fr)]">
+              <div className="relative overflow-hidden bg-gradient-to-br from-[#30213c] via-[#523c68] to-[#75598d] px-5 py-6 text-white sm:px-7 sm:py-7">
+                <div aria-hidden="true" className="pointer-events-none absolute -right-12 -top-14 h-40 w-40 rounded-full border border-white/10" />
+                <div aria-hidden="true" className="pointer-events-none absolute -right-3 -top-5 h-24 w-24 rounded-full border border-white/10" />
+                <div className="relative">
+                  <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-white/15 bg-white/10 text-xl" aria-hidden="true">✦</span>
+                  <p className="mt-5 text-xs font-bold uppercase tracking-[0.16em] text-white/70">Tava balss ir svarīga</p>
+                  <h2 className="mt-2 text-2xl font-black leading-tight sm:text-3xl text-white">Atsauksmes un idejas</h2>
+                  <p className="mt-3 max-w-sm text-sm leading-6 text-white/80">
+                    Kas tev patīk? Ko varētu uzlabot? Uzraksti ziņu saņems vietnes veidotājs.
+                  </p>
+                </div>
+              </div>
+
+              <form onSubmit={submitFeedback} className="space-y-5 p-5 sm:p-7 lg:p-8">
+                <fieldset>
+                  <legend className="mb-2.5 text-sm font-bold text-dark-purple">Ko vēlies nosūtīt?</legend>
+                  <div className="grid grid-cols-2 gap-2 sm:max-w-md">
+                    {[
+                      { value: 'Ideja', icon: '💡', description: 'Ieteikums jaunai iespējai' },
+                      { value: 'Atsauksme', icon: '💬', description: 'Viedoklis par vietni' },
+                    ].map((option) => (
+                      <button
+                        key={option.value}
+                        type="button"
+                        aria-pressed={feedbackType === option.value}
+                        onClick={() => setFeedbackType(option.value)}
+                        className={`rounded-xl border p-3 text-left transition ${
+                          feedbackType === option.value
+                            ? 'border-[#684b82] bg-[#f4eff8] ring-2 ring-[#684b82]/10'
+                            : 'border-[#e8e3e9] bg-white hover:border-[#cbbbd8] hover:bg-[#fbf9fc]'
+                        }`}
+                      >
+                        <span className="flex items-center gap-2 text-sm font-extrabold text-dark-purple">
+                          <span aria-hidden="true">{option.icon}</span>
+                          {option.value}
+                        </span>
+                        <span className="mt-1 block text-xs leading-5 text-muted">{option.description}</span>
+                      </button>
+                    ))}
+                  </div>
+                </fieldset>
+
+                <div>
+                  <div className="mb-2 flex items-center justify-between gap-3">
+                    <label htmlFor="feedback-message" className="text-sm font-bold text-dark-purple">Tava ziņa</label>
+                    <span className="text-xs text-muted">{feedbackMessage.length}/3000</span>
+                  </div>
+                  <textarea
+                    id="feedback-message"
+                    value={feedbackMessage}
+                    onChange={(event) => setFeedbackMessage(event.target.value)}
+                    required
+                    minLength={5}
+                    maxLength={3000}
+                    rows={4}
+                    placeholder="Pastāsti savu domu..."
+                    className="w-full resize-y rounded-xl border border-[#dedfd7] bg-[#fcfbfd] px-4 py-3 text-sm leading-6 text-dark-purple outline-none transition placeholder:text-muted/70 focus:border-[#684b82] focus:bg-white focus:ring-4 focus:ring-[#684b82]/10"
+                  />
+                </div>
+
+                <div className="flex flex-col gap-3 border-t border-[#eeeaf0] pt-4 sm:flex-row sm:items-center sm:justify-between">
+                  <p className="text-xs leading-5 text-muted">Ziņa tiks nosūtīta privāti vietnes veidotājam.</p>
+                  <button
+                    type="submit"
+                    disabled={sendingFeedback || feedbackMessage.trim().length < 5}
+                    className="flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#684b82] px-6 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-[#563b70] hover:shadow-md disabled:cursor-not-allowed disabled:opacity-55 sm:w-auto"
+                  >
+                    {sendingFeedback ? 'Sūta...' : 'Nosūtīt'}
+                    {!sendingFeedback && <span aria-hidden="true">→</span>}
+                  </button>
+                </div>
+                {feedbackStatus && (
+                  <p role="status" className="rounded-lg border border-[#d9ead9] bg-[#f1f8f1] px-3 py-2.5 text-sm font-medium text-[#315d39]">
+                    {feedbackStatus}
+                  </p>
+                )}
+              </form>
+            </div>
+          </section>
         </div>
       </div>
     </div>

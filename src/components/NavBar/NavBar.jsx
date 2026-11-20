@@ -16,13 +16,28 @@ function NavBar() {
 
   const closeMenu = () => setShowMobileMenu(false);
 
-  const navLinks = [
-    { to: '/tutorial', label: 'Ceļvedis', icon: '🧭' },
-    { to: '/calendar', label: 'Kalendārs', icon: '📅' },
-    { to: '/my-events', label: 'Notikumi', icon: '🗂️' },
-    { to: '/albums', label: 'Albumi', icon: '📚' },
-    // { to: '/family-chat', label: 'Ģimenes čats', icon: '💬' },
-    // { to: '/christmas', label: 'Svētki', icon: '🎄' },
+  const navGroups = [
+    {
+      label: 'Pamatā',
+      links: [
+        { to: '/RegWelcome', label: 'Sākums', icon: '🏠' },
+        { to: '/calendar', label: 'Kalendārs', icon: '📅' },
+      ],
+    },
+    {
+      label: 'Ģimenes saturs',
+      links: [
+        { to: '/albums', label: 'Albumi', icon: '📚' },
+        { to: '/family-pearls', label: 'Radu pērles', icon: '💎' },
+      ],
+    },
+    {
+      label: 'Pārvaldība',
+      links: [
+        { to: '/my-events', label: 'Mani notikumi', icon: '🗂️' },
+        { to: '/tutorial', label: 'Ceļvedis', icon: '🧭' },
+      ],
+    },
   ];
 
   return (
@@ -47,17 +62,22 @@ function NavBar() {
 
           <div className="hidden lg:block lg:pt-8">
             <div className="mb-3 px-2 text-[10px] font-bold uppercase text-[#a18f86]">Navigācija</div>
-            <div className="grid gap-2">
-            {navLinks.map((link) => (
-              <NavLink
-                key={link.to}
-                to={link.to}
-                className={({ isActive }) => `group flex items-center gap-3 rounded-lg border px-3.5 py-3 text-sm font-bold no-underline transition-all duration-200 ${isActive ? "border-[#d8c8e8] bg-[#eee7f5] text-[#382d5b] shadow-sm" : "border-transparent bg-transparent text-dark-purple hover:translate-x-1 hover:border-white/80 hover:bg-white/80 hover:shadow-sm"}`}
-              >
-                <span className="text-base transition-transform duration-200 group-hover:scale-110">{link.icon}</span>
-                <span>{link.label}</span>
-              </NavLink>
-            ))}
+            <div className="grid gap-4">
+              {navGroups.map((group) => (
+                <div key={group.label} className="grid gap-1.5">
+                  <div className="px-2 pb-1 text-[10px] font-bold uppercase tracking-[0.12em] text-[#b0a39a]">{group.label}</div>
+                  {group.links.map((link) => (
+                    <NavLink
+                      key={link.to}
+                      to={link.to}
+                      className={({ isActive }) => `group flex items-center gap-3 rounded-lg border px-3.5 py-2.5 text-sm font-bold no-underline transition-all duration-200 ${isActive ? "border-[#d8c8e8] bg-[#eee7f5] text-[#382d5b] shadow-sm" : "border-transparent bg-transparent text-dark-purple hover:translate-x-1 hover:border-white/80 hover:bg-white/80 hover:shadow-sm"}`}
+                    >
+                      <span className="text-base transition-transform duration-200 group-hover:scale-110">{link.icon}</span>
+                      <span>{link.label}</span>
+                    </NavLink>
+                  ))}
+                </div>
+              ))}
             </div>
           </div>
 
@@ -122,17 +142,22 @@ function NavBar() {
         {showMobileMenu && (
           <div id="mobile-navigation" className="pb-4 lg:hidden">
             <div className="rounded-lg border border-white/80 bg-white/92 p-3 shadow-[0_18px_40px_rgba(36,23,38,0.12)]">
-              <div className="grid gap-2">
-                {navLinks.map((link) => (
-                  <NavLink
-                    key={link.to}
-                    to={link.to}
-                    onClick={closeMenu}
-                    className={({ isActive }) => `flex items-center gap-3 rounded-lg border px-3.5 py-3 font-semibold no-underline transition ${isActive ? "border-[#d8c8e8] bg-[#eee7f5] text-[#382d5b]" : "border-white/80 bg-white text-dark-purple hover:bg-warm-beige/40"}`}
-                  >
-                    <span className="text-lg">{link.icon}</span>
-                    <span>{link.label}</span>
-                  </NavLink>
+              <div className="grid gap-3">
+                {navGroups.map((group) => (
+                  <div key={group.label} className="grid gap-1.5">
+                    <div className="px-1 text-[10px] font-bold uppercase tracking-[0.12em] text-[#a18f86]">{group.label}</div>
+                    {group.links.map((link) => (
+                      <NavLink
+                        key={link.to}
+                        to={link.to}
+                        onClick={closeMenu}
+                        className={({ isActive }) => `flex items-center gap-3 rounded-lg border px-3.5 py-2.5 font-semibold no-underline transition ${isActive ? "border-[#d8c8e8] bg-[#eee7f5] text-[#382d5b]" : "border-white/80 bg-white text-dark-purple hover:bg-warm-beige/40"}`}
+                      >
+                        <span className="text-lg">{link.icon}</span>
+                        <span>{link.label}</span>
+                      </NavLink>
+                    ))}
+                  </div>
                 ))}
               </div>
 

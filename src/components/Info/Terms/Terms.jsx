@@ -96,7 +96,7 @@ function Terms() {
 
           <section className="rounded-[1.75rem] border border-white/80 bg-white/85 p-5 text-sm leading-7 text-muted shadow-soft backdrop-blur-sm sm:p-6">
             <p>
-              Datu pieprasījumiem: <a className="font-bold text-medium-purple underline" href="mailto:kristskarlisgrundmanis@gmail.com">kristskarlisgrundmanis@gmail.com</a>.
+              Datu pieprasījumiem: <a className="font-bold text-medium-purple underline" href="mailto:mail@raduburzins.lv">mail@raduburzins.lv</a>.
               Uzraudzības iestāde: <a className="font-bold text-medium-purple underline" href="https://www.dvi.gov.lv/" target="_blank" rel="noopener noreferrer">Datu valsts inspekcija</a>.
             </p>
             <p className="mt-3 text-xs">
