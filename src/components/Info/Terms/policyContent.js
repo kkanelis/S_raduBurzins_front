@@ -38,11 +38,11 @@ export const privacySections = [
   },
   {
     title: '3. Apstrādes nolūki un tiesiskais pamats',
-    text: 'Datus izmantojam konta izveidei un apstiprināšanai, profila uzturēšanai un lietotāja pieprasīto funkciju nodrošināšanai. Šīs darbības nepieciešamas pakalpojuma sniegšanai pēc lietotāja pieprasījuma (VDAR 6. panta 1. punkta b) apakšpunkts). Piekļuves kontrole un drošības incidentu novēršana balstās uz pārziņa leģitīmajām interesēm (VDAR 6. panta 1. punkta f) apakšpunkts), ievērojot lietotāju tiesības.',
+    text: 'Datus izmantojam konta izveidei, e-pasta adreses apstiprināšanai, administratora apstiprināšanai, profila uzturēšanai un lietotāja pieprasīto funkciju nodrošināšanai. Apstiprinājuma e-pasta nosūtīšanai izmantojam norādīto e-pasta adresi. Šīs darbības nepieciešamas pakalpojuma sniegšanai pēc lietotāja pieprasījuma (VDAR 6. panta 1. punkta b) apakšpunkts). Piekļuves kontrole un drošības incidentu novēršana balstās uz pārziņa leģitīmajām interesēm (VDAR 6. panta 1. punkta f) apakšpunkts), ievērojot lietotāju tiesības.',
   },
   {
     title: '4. Kam dati ir pieejami',
-    text: 'Profila un iesniegto saturu var redzēt administrators un apstiprinātie lietotāji atbilstoši piekļuves tiesībām. Dati tiek apstrādāti servera, datubāzes, failu glabāšanas un reāllaika saziņas tehniskajā infrastruktūrā. Tiek ielādēts Nunito fonts no Google Fonts; šī pieprasījuma laikā Google var saņemt tehnisko informāciju, piemēram, IP adresi un pārlūkprogrammas pieprasījuma datus. Dati netiek pārdoti. Lēmumu par konta apstiprināšanu pieņem administrators, nevis tikai automatizēta sistēma.',
+    text: 'Profila un iesniegto saturu var redzēt administrators un apstiprinātie lietotāji atbilstoši piekļuves tiesībām. Dati tiek apstrādāti servera, datubāzes, failu glabāšanas, e-pasta un reāllaika saziņas tehniskajā infrastruktūrā. Tiek ielādēts Nunito fonts no Google Fonts; šī pieprasījuma laikā Google var saņemt tehnisko informāciju, piemēram, IP adresi un pārlūkprogrammas pieprasījuma datus. Dati netiek pārdoti. Lēmumu par konta apstiprināšanu pieņem administrators, nevis tikai automatizēta sistēma.',
   },
   {
     title: '5. Glabāšanas ilgums un dzēšana',

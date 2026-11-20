@@ -68,6 +68,10 @@ export const AuthProvider = ({ children }) => {
         return api.post('/api/register', userData);
     };
 
+    const resendVerificationEmail = async (email) => {
+        return api.post('/api/email/verification-notification', { email });
+    };
+
     const logout = async () => {
         try {
             await api.post('/api/logout');
@@ -86,6 +90,7 @@ export const AuthProvider = ({ children }) => {
             loading,
             login,
             register,
+            resendVerificationEmail,
             logout,
             checkAuth,
             updateUser,

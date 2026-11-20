@@ -6,6 +6,7 @@ import NavBar from "./components/NavBar/NavBar";
 import Welcome from "./components/Info/Welcome/Welcome";
 import Login from "./components/auth/Login";
 import Register from "./components/auth/Register";
+import EmailVerified from "./components/auth/EmailVerified";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import GuestOnlyRoute from "./components/auth/GuestOnlyRoute";
 import Footer from "./components/Footer/Footer";
@@ -56,6 +57,7 @@ const AppContent = () => {
                   </GuestOnlyRoute>
                 }
               />
+              <Route path="/email-verified" element={<EmailVerified />} />
               <Route path="/terms" element={<Terms />} />
               <Route path="/tutorial" element={<Tutorial />} />
               <Route

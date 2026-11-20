@@ -23,7 +23,10 @@ function Register() {
     const [showPrivacyPolicy, setShowPrivacyPolicy] = useState(false);
     const [showTerms, setShowTerms] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const { register } = useAuth();
+    const [isResending, setIsResending] = useState(false);
+    const [resendMessage, setResendMessage] = useState('');
+    const [resendError, setResendError] = useState('');
+    const { register, resendVerificationEmail } = useAuth();
     const [dob, setDob] = useState({ day: '', month: '', year: '' });
 
     const handleDobChange = (event) => {
@@ -80,6 +83,21 @@ function Register() {
         }
     };
 
+    const handleResendVerification = async () => {
+        setIsResending(true);
+        setResendMessage('');
+        setResendError('');
+
+        try {
+            const response = await resendVerificationEmail(formData.email);
+            setResendMessage(response.data.message);
+        } catch {
+            setResendError('Neizdevās nosūtīt e-pastu. Mēģini vēlreiz vēlāk.');
+        } finally {
+            setIsResending(false);
+        }
+    };
+
     return (
         <main className="relative flex min-h-[70vh] items-center justify-center overflow-hidden px-4 py-8 sm:px-6 sm:py-12">
             <div aria-hidden="true" className="pointer-events-none absolute -left-24 top-12 h-64 w-64 rounded-full bg-[#8a6cff]/10 blur-3xl" />
@@ -130,11 +148,26 @@ function Register() {
                             <div role="status" className="space-y-4 rounded-2xl border border-emerald-200 bg-emerald-50 p-5 text-sm leading-6 text-emerald-900">
                                 <div className="flex items-start gap-3">
                                     <span aria-hidden="true" className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-100 font-black">✓</span>
-                                    <p>{successMessage}</p>
+                                    <div>
+                                        <p>{successMessage}</p>
+                                        <p className="mt-2">Pārbaudi <strong>{formData.email}</strong> un apstiprini e-pasta adresi, lai varētu pieslēgties. Pārbaudi arī mēstuļu mapi.</p>
+                                    </div>
                                 </div>
-                                <Link to="/login" className="btn-primary inline-flex px-5 py-2.5">
-                                    Pieslēgties
-                                </Link>
+                                {resendMessage && <p className="text-sm">{resendMessage}</p>}
+                                {resendError && <p role="alert" className="text-sm text-red-700">{resendError}</p>}
+                                <div className="flex flex-wrap gap-3">
+                                    <button
+                                        type="button"
+                                        onClick={handleResendVerification}
+                                        disabled={isResending}
+                                        className="btn-ghost px-5 py-2.5 disabled:cursor-not-allowed disabled:opacity-70"
+                                    >
+                                        {isResending ? 'Sūta...' : 'Nosūtīt apstiprinājuma e-pastu vēlreiz'}
+                                    </button>
+                                    <Link to="/login" className="btn-primary inline-flex px-5 py-2.5">
+                                        Uz pieslēgšanos
+                                    </Link>
+                                </div>
                             </div>
                         ) : (
                             <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-2">

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/useAuth';
 import api from '../../services/api';
 import ProfileAvatar from './ProfileAvatar';
@@ -6,7 +7,8 @@ import ProfileAvatar from './ProfileAvatar';
 const profileInputClassName = 'w-full min-w-0 rounded-lg border border-[#dedfd7] bg-[#fcfcfa] px-3.5 py-2.5 text-sm text-dark-purple shadow-sm outline-none transition placeholder:text-muted/70 focus:border-[#61836a] focus:bg-white focus:ring-4 focus:ring-[#61836a]/10';
 
 function Profile() {
-  const { user, checkAuth, updateUser } = useAuth();
+  const { user, checkAuth, logout, updateUser } = useAuth();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     first_name: user?.first_name || '',
     last_name: user?.last_name || '',
@@ -60,6 +62,15 @@ function Profile() {
       });
 
       if (response.data?.user) {
+        if (response.data.user.email !== user.email) {
+          await logout();
+          navigate('/login', {
+            replace: true,
+            state: { message: 'E-pasts nomainīts. Apstiprini jauno adresi, izmantojot uz to nosūtīto saiti.' },
+          });
+          return;
+        }
+
         updateUser(response.data.user);
         await checkAuth();
       }

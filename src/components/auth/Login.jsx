@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/useAuth';
 import avatar from '../../assets/rb-avatar.svg';
 
@@ -9,21 +9,40 @@ function Login() {
     const [error, setError] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isResending, setIsResending] = useState(false);
+    const [resendMessage, setResendMessage] = useState('');
+    const location = useLocation();
     const navigate = useNavigate();
-    const { login } = useAuth();
+    const { login, resendVerificationEmail } = useAuth();
 
     const handleSubmit = async (event) => {
         event.preventDefault();
         setError('');
+        setResendMessage('');
         setIsSubmitting(true);
 
         try {
             await login(email, password);
             navigate('/RegWelcome');
         } catch (err) {
-            setError(err.response?.data?.message || 'Neizdevās pieslēgties. Pārbaudiet e-pastu un paroli.');
+            const fieldError = Object.values(err.response?.data?.errors || {}).flat()[0];
+            setError(fieldError || err.response?.data?.message || 'Neizdevās pieslēgties. Pārbaudiet e-pastu un paroli.');
         } finally {
             setIsSubmitting(false);
+        }
+    };
+
+    const handleResendVerification = async () => {
+        setIsResending(true);
+        setResendMessage('');
+
+        try {
+            const response = await resendVerificationEmail(email);
+            setResendMessage(response.data.message);
+        } catch {
+            setResendMessage('Neizdevās nosūtīt e-pastu. Mēģini vēlreiz vēlāk.');
+        } finally {
+            setIsResending(false);
         }
     };
 
@@ -67,10 +86,28 @@ function Login() {
                         </div>
 
                         <form onSubmit={handleSubmit} className="space-y-5">
+                            {location.state?.message && (
+                                <p role="status" className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm leading-5 text-emerald-900">
+                                    {location.state.message}
+                                </p>
+                            )}
                             {error && (
-                                <div role="alert" className="flex gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm leading-5 text-red-800">
-                                    <span aria-hidden="true">!</span>
-                                    <span>{error}</span>
+                                <div role="alert" className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm leading-5 text-red-800">
+                                    <div className="flex gap-3">
+                                        <span aria-hidden="true">!</span>
+                                        <span>{error}</span>
+                                    </div>
+                                    {error.toLowerCase().includes('e-pasta adresi') && email && (
+                                        <button
+                                            type="button"
+                                            onClick={handleResendVerification}
+                                            disabled={isResending}
+                                            className="mt-3 font-bold underline underline-offset-2 disabled:opacity-70"
+                                        >
+                                            {isResending ? 'Sūta...' : 'Nosūtīt apstiprinājuma e-pastu vēlreiz'}
+                                        </button>
+                                    )}
+                                    {resendMessage && <p className="mt-2">{resendMessage}</p>}
                                 </div>
                             )}
 
