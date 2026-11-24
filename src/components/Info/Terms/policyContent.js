@@ -1,4 +1,4 @@
-export const policyUpdatedAt = '2026-11-20';
+export const policyUpdatedAt = '2026-11-23';
 
 export const termsSections = [
   {
@@ -38,7 +38,7 @@ export const privacySections = [
   },
   {
     title: '3. Apstrādes nolūki un tiesiskais pamats',
-    text: 'Datus izmantojam konta izveidei, e-pasta adreses apstiprināšanai, administratora apstiprināšanai, profila uzturēšanai un lietotāja pieprasīto funkciju nodrošināšanai. Apstiprinājuma e-pasta nosūtīšanai izmantojam norādīto e-pasta adresi. Šīs darbības nepieciešamas pakalpojuma sniegšanai pēc lietotāja pieprasījuma (VDAR 6. panta 1. punkta b) apakšpunkts). Piekļuves kontrole un drošības incidentu novēršana balstās uz pārziņa leģitīmajām interesēm (VDAR 6. panta 1. punkta f) apakšpunkts), ievērojot lietotāju tiesības.',
+    text: 'Datus izmantojam konta izveidei, e-pasta adreses apstiprināšanai, administratora apstiprināšanai, profila uzturēšanai un lietotāja pieprasīto funkciju nodrošināšanai. Apstiprinājuma e-pasta nosūtīšanai izmantojam norādīto e-pasta adresi. Šīs darbības nepieciešamas pakalpojuma sniegšanai pēc lietotāja pieprasījuma (VDAR 6. panta 1. punkta b) apakšpunkts).',
   },
   {
     title: '4. Kam dati ir pieejami',
@@ -50,14 +50,6 @@ export const privacySections = [
   },
   {
     title: '6. Tavas tiesības',
-    text: 'Tev ir tiesības pieprasīt piekļuvi saviem datiem, to labošanu vai dzēšanu, apstrādes ierobežošanu un — ja piemērojams — datu pārnesamību vai iebilst pret apstrādi. Ja kāda apstrāde balstās uz piekrišanu, to vari atsaukt; tas neietekmē iepriekš veiktās apstrādes likumību. Uz pieprasījumiem atbildēsim VDAR noteiktajā termiņā — parasti viena mēneša laikā; sarežģītos gadījumos termiņu var pagarināt, par to paziņojot. Tev ir tiesības iesniegt sūdzību Datu valsts inspekcijā: www.dvi.gov.lv.',
-  },
-  {
-    title: '7. Citu personu dati un drošība',
-    text: 'Iesniedzot citas personas datus vai attēlus, pārliecinies, ka tev ir tiesisks pamats to darīt. Piekļuvi kontam un iesniegtajam saturam ierobežojam atbilstoši piešķirtajām piekļuves tiesībām un konta apstiprināšanai.',
-  },
-  {
-    title: '8. Pārsūtīšana un ārējie pakalpojumi',
-    text: 'Lietotnes kods nenosaka, kurā valstī izvietots serveris, datubāze, failu glabāšana vai reāllaika saziņas serveris; to nosaka vietnes izvietošanas konfigurācija. Pārzinim pirms vietnes publiskas izmantošanas ir jāpārbauda konkrētie pakalpojumu sniedzēji, to atrašanās vietas un attiecīgie datu apstrādes līgumi. Ja dati tiek pārsūtīti ārpus Eiropas Ekonomikas zonas, šādai pārsūtīšanai jānodrošina VDAR V nodaļas prasībām atbilstošs pamats un aizsardzības pasākumi.',
+    text: 'Tev ir tiesības pieprasīt piekļuvi saviem datiem, to labošanu vai dzēšanu, apstrādes ierobežošanu un ja piemērojams datu pārnesamību vai iebilst pret apstrādi. Ja kāda apstrāde balstās uz piekrišanu, to vari atsaukt; tas neietekmē iepriekš veiktās apstrādes likumību. Uz pieprasījumiem atbildēsim VDAR noteiktajā termiņā - parasti viena mēneša laikā; sarežģītos gadījumos termiņu var pagarināt, par to paziņojot. Tev ir tiesības iesniegt sūdzību Datu valsts inspekcijā: www.dvi.gov.lv.',
   },
 ];

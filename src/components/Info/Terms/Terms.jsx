@@ -37,19 +37,12 @@ function Terms() {
                 </h1>
 
                 <p className="max-w-2xl text-sm leading-7 text-muted sm:text-base">
-                  Noteikumi skaidro vietnes lietošanu; privātuma politika — personas datu apstrādi un tavas tiesības.
+                  Noteikumi skaidro vietnes lietošanu; privātuma politika - personas datu apstrādi un tavas tiesības.
                 </p>
-
-                <div className="flex flex-wrap gap-3">
-                  <Link to="/register" className="btn-primary px-6 py-3 text-sm no-underline sm:text-base">
-                    Reģistrēties
-                  </Link>
-                </div>
               </div>
 
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
                 {[
-                  { label: 'Pārzinis', value: 'Krists Kārlis Grundmanis' },
                   { label: 'Pieprasījumi', value: 'Atbildes VDAR termiņā' },
                   { label: 'Datu dzēšana', value: 'Līdz 30 dienām' },
                   { label: 'Atjaunināts', value: policyUpdatedAt },
@@ -97,7 +90,6 @@ function Terms() {
           <section className="rounded-[1.75rem] border border-white/80 bg-white/85 p-5 text-sm leading-7 text-muted shadow-soft backdrop-blur-sm sm:p-6">
             <p>
               Datu pieprasījumiem: <a className="font-bold text-medium-purple underline" href="mailto:mail@raduburzins.lv">mail@raduburzins.lv</a>.
-              Uzraudzības iestāde: <a className="font-bold text-medium-purple underline" href="https://www.dvi.gov.lv/" target="_blank" rel="noopener noreferrer">Datu valsts inspekcija</a>.
             </p>
             <p className="mt-3 text-xs">
               Šī informācija ir sagatavota, balstoties uz pašlaik pārbaudāmo vietnes funkcionalitāti. Tā pati par sevi nav juridisks apliecinājums pilnīgai VDAR atbilstībai.

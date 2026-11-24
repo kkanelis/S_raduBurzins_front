@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/useAuth';
 import api from '../../services/api';
 import ProfileAvatar from './ProfileAvatar';
+import PushNotificationSettings from './PushNotificationSettings';
 
 const profileInputClassName = 'w-full min-w-0 rounded-lg border border-[#dedfd7] bg-[#fcfcfa] px-3.5 py-2.5 text-sm text-dark-purple shadow-sm outline-none transition placeholder:text-muted/70 focus:border-[#61836a] focus:bg-white focus:ring-4 focus:ring-[#61836a]/10';
 
@@ -217,6 +218,8 @@ function Profile() {
               </div>
             </section>
           </form>
+
+          <PushNotificationSettings />
         </div>
       </div>
     </div>

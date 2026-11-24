@@ -59,11 +59,13 @@ VITE_REVERB_SCHEME=http
 
 Reverb klienta atslēgai `VITE_REVERB_APP_KEY` jāsakrīt ar backend `.env` `REVERB_APP_KEY`. `VITE_REVERB_HOST`, `VITE_REVERB_PORT` un `VITE_REVERB_SCHEME` jāatbilst backend Reverb iestatījumiem. Vides mainīgie tiek nolasīti būvēšanas/palaišanas laikā; pēc `.env` maiņas Vite serveri pārstartē.
 
-Vite proxy darbojas tikai izstrādes serverī. Produkcijā konfigurē `VITE_API_BASE_URL` ar publisko Laravel API adresi un `VITE_REVERB_*` ar sasniedzamo WebSocket adresi pirms `npm run build`.
+Vite proxy darbojas tikai izstrādes serverī. Produkcijas būvē pēc noklusējuma izmanto `https://api.raduburzins.lv`; ja vajadzīga cita adrese, pirms būvēšanas iestati `VITE_API_BASE_URL`. `VITE_REVERB_*` produkcijas vērtības jānorāda pirms `npm run build`.
+
+Web Push iestatījumam `VITE_VAPID_PUBLIC_KEY` jābūt tādai pašai publiskajai atslēgai kā backend `VAPID_PUBLIC_KEY`. Frontendā nekad neievieto `VAPID_PRIVATE_KEY`. Push paziņojumu reģistrēšanai un instalēšanai vajadzīgs HTTPS; `localhost` ir izņēmums tikai lokālai izstrādei.
 
 ## cPanel izvietošana
 
-Repozitorija `.cpanel.yml` būvē frontend un publicē `dist/` saturu mapē `/home2/raduburz/public_html`. cPanel Git Version Control repozitorijam jābūt uz `main` zara, un deploy vidē jābūt pieejamam Node.js 18+ un npm.
+Repozitorija `.cpanel.yml` publicē jau uzbūvēto `dist/` saturu mapē `/home2/raduburz/public_html`; pirms izvietošanas atjauno būvi ar `npm run build` un iekļauj atjaunoto `dist/` Git izmaiņās. cPanel Git Version Control repozitorijam jābūt uz `main` zara.
 
 Būve izmanto `https://api.raduburzins.lv` kā API adresi. `public/.htaccess` nodrošina React maršrutu pāradresēšanu uz `index.html`. Reverb WebSocket servera un `VITE_REVERB_APP_KEY` produkcijas konfigurācija jāiestata atsevišķi; cPanel deploy to automātiski nekonfigurē.
 

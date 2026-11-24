@@ -10,6 +10,7 @@ import EmailVerified from "./components/auth/EmailVerified";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import GuestOnlyRoute from "./components/auth/GuestOnlyRoute";
 import Footer from "./components/Footer/Footer";
+import PwaInstallPrompt from "./components/PwaInstallPrompt";
 import "./index.css";
 
 const Info = lazy(() => import("./components/Info/InfoPage/InfoPage"));
@@ -138,6 +139,7 @@ const AppContent = () => {
         </main>
       </div>
       {user && <div className="lg:ml-72"><Footer /></div>}
+      <PwaInstallPrompt enabled={Boolean(user)} />
     </div>
   );
 };
