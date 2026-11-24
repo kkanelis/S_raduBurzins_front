@@ -21,6 +21,18 @@ const highlights = [
 
 const updates = [
   {
+    title: 'Radu Burzinš',
+    text: 'Tagad ir iespēja nolādet "Radu Burziņš" kā aplikāciju telefonā.',
+    icon: '📲',
+    label: 'Jaunums',
+  },
+  {
+    title: 'Paziņojumi',
+    text: 'Ir iespēja saņemt paziņojumus par jaunām iespējām un uzlabojumiem.',
+    icon: '🔔',
+    label: 'Jaunums',
+  },
+  {
     title: 'Radu pērles',
     text: 'Tagad ģimenes citātus, notikumus un atmiņas vari dalīties ar kartītēs ar foto un video. Satura atvēršanai papildus logs vairs nav nepieciešams.',
     icon: '💎',
@@ -42,18 +54,6 @@ const updates = [
     title: 'Atsauksmes un idejas',
     text: 'Tagad vari nosūtīt vietnes veidotājam ieteikumu vai atsauksmi tieši no sākumlapas.',
     icon: '💡',
-    label: 'Jaunums',
-  },
-  {
-    title: 'Sākumlapa telefonam',
-    text: 'Telefona sākumlapā vari ātri apskatīt šodienas ģimenes notikumus un vārda dienas.',
-    icon: '📱',
-    label: 'Uzlabojums',
-  },
-  {
-    title: 'E-pasta apstiprināšana',
-    text: 'Reģistrējoties kontu var apstiprināt ar e-pastā saņemtu saiti.',
-    icon: '✉️',
     label: 'Jaunums',
   },
 ];
