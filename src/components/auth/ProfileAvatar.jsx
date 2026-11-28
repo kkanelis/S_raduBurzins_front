@@ -3,6 +3,7 @@ import api from '../../services/api';
 
 function ProfileAvatar({ user, className = '' }) {
   const [imageUrl, setImageUrl] = useState('');
+  const userId = user?.id;
   const initials = `${user?.first_name?.[0] || ''}${user?.last_name?.[0] || ''}`.toUpperCase();
 
   useEffect(() => {
@@ -15,7 +16,7 @@ function ProfileAvatar({ user, className = '' }) {
       return () => controller.abort();
     }
 
-    api.get('/api/profile/avatar', {
+    api.get(userId ? `/api/users/${userId}/avatar` : '/api/profile/avatar', {
       responseType: 'blob',
       params: { updated_at: user.updated_at || '' },
       signal: controller.signal,
@@ -34,7 +35,7 @@ function ProfileAvatar({ user, className = '' }) {
       controller.abort();
       if (objectUrl) URL.revokeObjectURL(objectUrl);
     };
-  }, [user?.avatar_path, user?.updated_at]);
+  }, [user?.avatar_path, user?.updated_at, userId]);
 
   return (
     <span className={`flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-dark-purple to-medium-purple text-sm font-black text-white ${className}`}>

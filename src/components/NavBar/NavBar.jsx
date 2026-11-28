@@ -1,223 +1,250 @@
-import React, { useState } from 'react';
-import { useNavigate, Link, NavLink } from 'react-router-dom';
+import React, { useEffect, useRef, useState } from 'react';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
+import api from '../../services/api';
 import { useAuth } from '../../context/useAuth';
 import ProfileAvatar from '../auth/ProfileAvatar';
+
+const iconPaths = {
+  home: <><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v10h13V10"/><path d="M9.5 20v-6h5v6"/></>,
+  calendar: <><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/><path d="M8 14h.01M12 14h.01M16 14h.01M8 17h.01M12 17h.01"/></>,
+  users: <><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></>,
+  albums: <><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></>,
+  pearls: <><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.93 4.93l2.12 2.12M16.95 16.95l2.12 2.12M2 12h3M19 12h3M4.93 19.07l2.12-2.12M16.95 7.05l2.12-2.12"/></>,
+  events: <><path d="M8 2v4M16 2v4M3 10h18"/><rect x="3" y="4" width="18" height="18" rx="2"/><path d="m9 16 2 2 4-5"/></>,
+  guide: <><circle cx="12" cy="12" r="9"/><path d="m16 8-2.5 5.5L8 16l2.5-5.5Z"/></>,
+  profile: <><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></>,
+  settings: <><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-1.8 1.8-.06-.06A1.7 1.7 0 0 0 16 18.34a1.7 1.7 0 0 0-1 .66H15v3h-2.5v-3a1.7 1.7 0 0 0-1-.66 1.7 1.7 0 0 0-1.88.34l-.06.06-1.8-1.8.06-.06A1.7 1.7 0 0 0 8.16 15a1.7 1.7 0 0 0-.66-1H4v-2h3.5a1.7 1.7 0 0 0 .66-1A1.7 1.7 0 0 0 7.82 9.1l-.06-.06 1.8-1.8.06.06A1.7 1.7 0 0 0 11.5 7a1.7 1.7 0 0 0 1-.66V3h2.5v3.34a1.7 1.7 0 0 0 1 .66 1.7 1.7 0 0 0 1.88-.34l.06-.06 1.8 1.8-.06.06A1.7 1.7 0 0 0 19.34 11a1.7 1.7 0 0 0 .66 1H22v2h-1.94a1.7 1.7 0 0 0-.66 1Z"/></>,
+  admin: <><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.93 4.93l2.12 2.12M16.95 16.95l2.12 2.12M2 12h3M19 12h3M4.93 19.07l2.12-2.12M16.95 7.05l2.12-2.12"/></>,
+  logout: <><path d="M10 17l5-5-5-5M15 12H3"/><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/></>,
+  menu: <><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></>,
+  chevron: <path d="m9 18 6-6-6-6"/>,
+  close: <path d="m6 6 12 12M18 6 6 18"/>,
+};
+
+function Icon({ name, size = 20, className = '' }) {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 24 24" width={size} height={size} fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className={className}>
+      {iconPaths[name]}
+    </svg>
+  );
+}
+
+function NavItem({ to, icon, label, badge, collapsed = false }) {
+  return (
+    <NavLink
+      to={to}
+      aria-label={collapsed ? label : undefined}
+      className={({ isActive }) => `nav-link ${isActive ? 'nav-link-active' : ''} ${collapsed ? 'nav-link-collapsed' : ''}`}
+    >
+      <span className="nav-link-icon"><Icon name={icon} /><span className="nav-badge-slot">{badge ? <span className="nav-dot" /> : null}</span></span>
+      {!collapsed && <span className="nav-link-label">{label}</span>}
+      {collapsed && <span className="nav-tooltip" role="tooltip">{label}</span>}
+    </NavLink>
+  );
+}
 
 function NavBar() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const [collapsed, setCollapsed] = useState(() => {
+    try { return localStorage.getItem('rb-nav-collapsed') === 'true'; } catch { return false; }
+  });
+  const [moreOpen, setMoreOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [sheetOffset, setSheetOffset] = useState(0);
+  const sheetDragStart = useRef(0);
+  const [calendarBadge, setCalendarBadge] = useState(false);
+  const [eventBadge, setEventBadge] = useState(false);
+  const sheetRef = useRef(null);
+  const menuRef = useRef(null);
+
+  useEffect(() => {
+    document.body.classList.toggle('nav-collapsed', collapsed);
+    try { localStorage.setItem('rb-nav-collapsed', String(collapsed)); } catch (storageError) {
+      console.warn('Neizdevās saglabāt navigācijas stāvokli.', storageError);
+    }
+  }, [collapsed]);
+
+  useEffect(() => () => document.body.classList.remove('nav-collapsed'), []);
+
+  useEffect(() => {
+    let active = true;
+    Promise.all([
+      api.get('/api/users/status').catch(() => ({ data: { users: [] } })),
+      api.get('/api/user/special-days').catch(() => ({ data: [] })),
+    ]).then(([usersResponse, eventsResponse]) => {
+      if (!active) return;
+      const now = new Date();
+      const monthDay = `${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+      const users = usersResponse.data?.users || usersResponse.data || [];
+      setCalendarBadge(users.some((item) => item.date_of_birth?.slice(5, 10) === monthDay));
+      const events = Array.isArray(eventsResponse.data) ? eventsResponse.data : eventsResponse.data?.events || [];
+      setEventBadge(events.length > 0);
+    });
+    return () => { active = false; };
+  }, []);
+
+  useEffect(() => {
+    if (!moreOpen) return undefined;
+    const previous = document.activeElement;
+    const sheet = sheetRef.current;
+    sheet?.querySelector('button, a')?.focus();
+    const onKeyDown = (event) => {
+      if (event.key === 'Escape') setMoreOpen(false);
+      if (event.key !== 'Tab' || !sheet) return;
+      const focusable = [...sheet.querySelectorAll('button, a')].filter((element) => !element.disabled);
+      if (!focusable.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+      if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.removeEventListener('keydown', onKeyDown);
+      previous?.focus();
+    };
+  }, [moreOpen]);
+
+  useEffect(() => {
+    if (!menuOpen) return undefined;
+    const closeOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) setMenuOpen(false);
+    };
+    document.addEventListener('pointerdown', closeOutside);
+    return () => document.removeEventListener('pointerdown', closeOutside);
+  }, [menuOpen]);
 
   const handleLogout = async () => {
+    setMenuOpen(false);
+    setMoreOpen(false);
     await logout();
-    setShowMobileMenu(false);
     navigate('/login');
   };
 
-  const closeMenu = () => setShowMobileMenu(false);
+  const startSheetDrag = (event) => {
+    sheetDragStart.current = event.clientY;
+  };
 
-  const navGroups = [
-    {
-      label: 'Pamatā',
-      links: [
-        { to: '/RegWelcome', label: 'Sākums', icon: '🏠' },
-        { to: '/calendar', label: 'Kalendārs', icon: '📅' },
-      ],
-    },
-    {
-      label: 'Ģimenes saturs',
-      links: [
-        { to: '/albums', label: 'Albumi', icon: '📚' },
-        { to: '/family-pearls', label: 'Radu pērles', icon: '💎' },
-      ],
-    },
-    {
-      label: 'Pārvaldība',
-      links: [
-        { to: '/my-events', label: 'Mani notikumi', icon: '🗂️' },
-        { to: '/tutorial', label: 'Ceļvedis', icon: '🧭' },
-      ],
-    },
+  const moveSheetDrag = (event) => {
+    if (!sheetDragStart.current) return;
+    setSheetOffset(Math.max(0, event.clientY - sheetDragStart.current));
+  };
+
+  const endSheetDrag = () => {
+    if (sheetOffset > 80) setMoreOpen(false);
+    setSheetOffset(0);
+    sheetDragStart.current = 0;
+  };
+
+  const groups = [
+    { label: 'Pamatā', links: [{ to: '/RegWelcome', label: 'Sākums', icon: 'home' }, { to: '/calendar', label: 'Kalendārs', icon: 'calendar', badge: calendarBadge }, { to: '/users', label: 'Lietotāji', icon: 'users' }] },
+    { label: 'Ģimenes saturs', links: [{ to: '/albums', label: 'Albumi', icon: 'albums' }, { to: '/family-pearls', label: 'Radu pērles', icon: 'pearls' }] },
+    { label: 'Pārvaldība', links: [{ to: '/my-events', label: 'Mani notikumi', icon: 'events', badge: eventBadge }, { to: '/tutorial', label: 'Ceļvedis', icon: 'guide' }] },
+  ];
+
+  const bottomMoreLinks = [
+    { to: '/family-pearls', label: 'Radu pērles', icon: 'pearls' },
+    { to: '/my-events', label: 'Mani notikumi', icon: 'events', badge: eventBadge },
+    { to: '/tutorial', label: 'Ceļvedis', icon: 'guide' },
+    { to: '/profile', label: 'Mans profils', icon: 'profile' },
+    { to: '/settings', label: 'Iestatījumi', icon: 'settings' },
   ];
 
   return (
-    <nav className="sticky top-0 z-40 border-b border-[#eadfd8] bg-[#fffaf7]/95 shadow-[0_12px_40px_rgba(36,23,38,0.09)] backdrop-blur-2xl lg:fixed lg:inset-y-0 lg:left-0 lg:w-72 lg:border-b-0 lg:border-r lg:bg-[#fffaf7]">
-      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-medium-purple/40 to-transparent lg:inset-y-0 lg:right-0 lg:left-auto lg:h-auto lg:w-px lg:bg-gradient-to-b" />
-      <div className="section-shell lg:flex lg:h-full lg:flex-col lg:px-5">
-        <div className="flex items-center justify-between gap-3 py-3 sm:py-4 lg:block lg:py-7">
-          <Link to="/RegWelcome" className="group flex items-center gap-3 rounded-lg border border-white/80 bg-white/75 p-2.5 no-underline transition hover:shadow-md sm:p-3">
-            <div className="relative">
-              <div className="absolute -inset-1 rounded-2xl opacity-60 blur-sm transition" />
-              <div className="relative flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-dark-purple via-medium-purple to-[#8a6cff] text-off-white font-black shadow-lg">
-                RB
-              </div>
-            </div>
-            <div className="hidden sm:block">
-              <p className="mb-0.5 text-sm font-black uppercase text-medium-purple">
-                Radu Burziņš
-              </p>
-              <p className="text-xs font-medium text-muted">Kalendārs • Notikumi • Ģimene</p>
-            </div>
+    <>
+      <aside className={`desktop-sidebar ${collapsed ? 'desktop-sidebar-collapsed' : ''}`}>
+        <div className="sidebar-brand">
+          <Link to="/RegWelcome" className="sidebar-logo" aria-label="Radu Burziņš sākums">
+            <img className="sidebar-rb" src="/icons/rb-icon-180.png" alt="" />
+            {!collapsed && <span className="sidebar-name">Radu Burziņš</span>}
           </Link>
-
-          <div className="hidden lg:block lg:pt-8">
-            <div className="mb-3 px-2 text-[10px] font-bold uppercase text-[#a18f86]">Navigācija</div>
-            <div className="grid gap-4">
-              {navGroups.map((group) => (
-                <div key={group.label} className="grid gap-1.5">
-                  <div className="px-2 pb-1 text-[10px] font-bold uppercase tracking-[0.12em] text-[#b0a39a]">{group.label}</div>
-                  {group.links.map((link) => (
-                    <NavLink
-                      key={link.to}
-                      to={link.to}
-                      className={({ isActive }) => `group flex items-center gap-3 rounded-lg border px-3.5 py-2.5 text-sm font-bold no-underline transition-all duration-200 ${isActive ? "border-[#d8c8e8] bg-[#eee7f5] text-[#382d5b] shadow-sm" : "border-transparent bg-transparent text-dark-purple hover:translate-x-1 hover:border-white/80 hover:bg-white/80 hover:shadow-sm"}`}
-                    >
-                      <span className="text-base transition-transform duration-200 group-hover:scale-110">{link.icon}</span>
-                      <span>{link.label}</span>
-                    </NavLink>
-                  ))}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2 sm:gap-3 lg:mt-auto">
-            <div className="hidden items-center gap-2 sm:flex lg:mb-6 lg:flex-col lg:items-stretch lg:rounded-lg lg:border lg:border-white/90 lg:bg-white/75 lg:p-3">
-              {user ? (
-                <>
-                  {user.is_admin && (
-                    <a
-                      href="https://api.raduburzins.lv/admin"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center justify-center gap-2 rounded-lg border border-[#d8c8e8] bg-[#eee7f5] px-4 py-3 text-sm font-bold text-[#382d5b] no-underline transition hover:bg-[#e4d8ef] lg:w-full"
-                    >
-                      <span aria-hidden="true">⚙️</span>
-                      Admin panelis
-                    </a>
-                  )}
-                  <Link to="/profile" className="hidden items-center gap-3 rounded-lg bg-[#f4eee9] px-3 py-3 text-left no-underline transition hover:bg-[#eee7f5] lg:flex">
-                    <ProfileAvatar user={user} className="h-10 w-10" />
-                    <div className="min-w-0">
-                      <div className="truncate text-xs font-bold text-dark-purple">{user.first_name} {user.last_name}</div>
-                    </div>
-                  </Link>
-                  <button
-                    onClick={handleLogout}
-                    className="rounded-lg bg-gradient-to-r from-medium-purple to-[#8a6cff] px-4 py-3 text-sm font-bold text-off-white shadow-md transition hover:translate-x-1 hover:shadow-lg lg:w-full"
-                  >
-                    Izrakstīties
-                  </button>
-                </>
-              ) : (
-                <>
-                  <Link
-                    to="/login"
-                    className="rounded-full border border-white/80 bg-white/85 px-4 py-2 text-sm font-bold text-dark-purple shadow-sm transition hover:-translate-y-0.5 hover:shadow-md no-underline"
-                  >
-                    Pieslēgties
-                  </Link>
-                  <Link
-                    to="/register"
-                    className="rounded-full bg-gradient-to-r from-medium-purple to-[#8a6cff] px-4 py-2 text-sm font-bold text-off-white shadow-md transition hover:-translate-y-0.5 hover:shadow-lg no-underline"
-                  >
-                    Reģistrēties
-                  </Link>
-                </>
-              )}
-            </div>
-
-            <button
-              onClick={() => setShowMobileMenu((value) => !value)}
-              className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-white/80 bg-white/90 text-lg font-bold text-dark-purple shadow-sm transition hover:-translate-y-0.5 hover:shadow-md lg:hidden"
-              aria-label={showMobileMenu ? "Aizvērt izvēlni" : "Atvērt izvēlni"}
-              aria-expanded={showMobileMenu}
-              aria-controls="mobile-navigation"
-            >
-              {showMobileMenu ? "×" : "☰"}
-            </button>
-          </div>
+          <button type="button" className="collapse-button" onClick={() => setCollapsed((value) => !value)} aria-label={collapsed ? 'Izvērst navigāciju' : 'Sabrukt navigāciju'} aria-expanded={!collapsed}>
+            <Icon name="chevron" className={collapsed ? '' : 'rotate-180'} />
+          </button>
         </div>
 
-        {showMobileMenu && (
-          <div id="mobile-navigation" className="pb-4 lg:hidden">
-            <div className="rounded-lg border border-white/80 bg-white/92 p-3 shadow-[0_18px_40px_rgba(36,23,38,0.12)]">
-              <div className="grid gap-3">
-                {navGroups.map((group) => (
-                  <div key={group.label} className="grid gap-1.5">
-                    <div className="px-1 text-[10px] font-bold uppercase tracking-[0.12em] text-[#a18f86]">{group.label}</div>
-                    {group.links.map((link) => (
-                      <NavLink
-                        key={link.to}
-                        to={link.to}
-                        onClick={closeMenu}
-                        className={({ isActive }) => `flex items-center gap-3 rounded-lg border px-3.5 py-2.5 font-semibold no-underline transition ${isActive ? "border-[#d8c8e8] bg-[#eee7f5] text-[#382d5b]" : "border-white/80 bg-white text-dark-purple hover:bg-warm-beige/40"}`}
-                      >
-                        <span className="text-lg">{link.icon}</span>
-                        <span>{link.label}</span>
-                      </NavLink>
-                    ))}
-                  </div>
-                ))}
-              </div>
-
-              <div className="my-3 h-px bg-warm-beige/80" />
-
-              <div className="grid gap-2">
-                {user ? (
-                  <>
-                    {user.is_admin && (
-                      <a
-                        href="https://api.raduburzins.lv/admin"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        onClick={closeMenu}
-                        className="flex items-center gap-3 rounded-lg border border-[#d8c8e8] bg-[#eee7f5] px-3.5 py-3 font-bold text-[#382d5b] no-underline transition hover:bg-[#e4d8ef]"
-                      >
-                        <span className="text-lg" aria-hidden="true">⚙️</span>
-                        <span>Admin panelis</span>
-                      </a>
-                    )}
-                    <Link
-                      to="/profile"
-                      onClick={closeMenu}
-                      className="flex items-center gap-3 rounded-lg border border-white/80 bg-white px-3.5 py-3 font-semibold text-dark-purple no-underline transition hover:bg-warm-beige/40"
-                    >
-                      <span className="text-lg">👤</span>
-                      <span>Profils</span>
-                    </Link>
-                    <button
-                      onClick={handleLogout}
-                      className="rounded-lg bg-gradient-to-r from-medium-purple to-[#8a6cff] px-4 py-3 text-left font-bold text-off-white shadow-md transition hover:shadow-lg"
-                    >
-                      Izrakstīties
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <Link
-                      to="/login"
-                      onClick={closeMenu}
-                      className="flex items-center gap-3 rounded-lg border border-white/80 bg-white px-3.5 py-3 font-semibold text-dark-purple no-underline transition hover:bg-warm-beige/40"
-                    >
-                      <span className="text-lg">🔑</span>
-                      <span>Pieslēgties</span>
-                    </Link>
-                    <Link
-                      to="/register"
-                      onClick={closeMenu}
-                      className="rounded-lg bg-gradient-to-r from-medium-purple to-[#8a6cff] px-4 py-3 text-center font-bold text-off-white shadow-md transition hover:shadow-lg no-underline"
-                    >
-                      Reģistrēties
-                    </Link>
-                  </>
-                )}
-              </div>
+        <nav className="desktop-nav" aria-label="Galvenā navigācija">
+          {groups.map((group) => (
+            <div className="nav-group" key={group.label}>
+              {!collapsed && <div className="nav-group-label">{group.label}</div>}
+              {group.links.map((link) => <NavItem key={link.to} {...link} collapsed={collapsed} />)}
             </div>
-          </div>
-        )}
-      </div>
-    </nav>
+          ))}
+        </nav>
+
+        <div className="sidebar-footer" ref={menuRef}>
+          <NavLink to="/profile" className={({ isActive }) => `profile-block ${isActive ? 'profile-block-active' : ''}`} aria-label="Skatīt manu profilu">
+            <ProfileAvatar user={user} className="profile-block-avatar" />
+            {!collapsed && (
+              <span className="profile-block-copy">
+                <span className="profile-block-name">{user.first_name} {user.last_name}</span>
+                <span className="profile-block-link">Skatīt profilu</span>
+              </span>
+            )}
+          </NavLink>
+          {!collapsed && (
+            <button type="button" className="menu-trigger" onClick={() => setMenuOpen((value) => !value)} aria-label="Profila izvēlne" aria-expanded={menuOpen}>
+              <Icon name="menu" />
+            </button>
+          )}
+          {collapsed && (
+            <button type="button" className="collapsed-profile-menu" onClick={() => setMenuOpen((value) => !value)} aria-label="Profila izvēlne">
+              <Icon name="menu" />
+            </button>
+          )}
+          {menuOpen && (
+            <div className="profile-menu" role="menu">
+              <Link role="menuitem" to="/profile" onClick={() => setMenuOpen(false)}><Icon name="profile" />Mans profils</Link>
+              <button role="menuitem" type="button" onClick={() => { setMenuOpen(false); navigate('/settings'); }}><Icon name="settings" />Iestatījumi</button>
+              {user.is_admin && <a role="menuitem" href="https://api.raduburzins.lv/admin" target="_blank" rel="noopener noreferrer"><Icon name="admin" />Admin panelis</a>}
+              <button role="menuitem" type="button" onClick={handleLogout} className="profile-menu-danger"><Icon name="logout" />Izrakstīties</button>
+            </div>
+          )}
+        </div>
+      </aside>
+
+      <header className="mobile-header">
+        <Link to="/RegWelcome" className="mobile-logo" aria-label="Radu Burziņš sākums"><img src="/icons/rb-icon-180.png" alt="" /><strong>Radu Burziņš</strong></Link>
+        <NavLink to="/profile" aria-label="Atvērt manu profilu"><ProfileAvatar user={user} className="mobile-avatar" /></NavLink>
+      </header>
+
+      <nav className="mobile-bottom-nav" aria-label="Mobilā galvenā navigācija">
+        <NavLink to="/RegWelcome" className={({ isActive }) => isActive ? 'mobile-nav-item mobile-nav-active' : 'mobile-nav-item'}><Icon name="home" /><span>Sākums</span></NavLink>
+        <NavLink to="/calendar" className={({ isActive }) => isActive ? 'mobile-nav-item mobile-nav-active' : 'mobile-nav-item'}><span className="mobile-icon-wrap"><Icon name="calendar" />{calendarBadge && <span className="mobile-nav-dot" />}</span><span>Kalendārs</span></NavLink>
+        <NavLink to="/users" className={({ isActive }) => isActive ? 'mobile-nav-item mobile-nav-active' : 'mobile-nav-item'}><Icon name="users" /><span>Lietotāji</span></NavLink>
+        <NavLink to="/albums" className={({ isActive }) => isActive ? 'mobile-nav-item mobile-nav-active' : 'mobile-nav-item'}><Icon name="albums" /><span>Albumi</span></NavLink>
+        <button type="button" className="mobile-nav-item" onClick={() => setMoreOpen(true)} aria-haspopup="dialog" aria-expanded={moreOpen}><Icon name="menu" /><span>Vairāk</span></button>
+      </nav>
+
+      {moreOpen && (
+        <div className="mobile-sheet-backdrop" role="presentation" onPointerDown={(event) => event.target === event.currentTarget && setMoreOpen(false)}>
+          <section
+            ref={sheetRef}
+            className="mobile-sheet"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Citas navigācijas sadaļas"
+            style={{ transform: `translateY(${sheetOffset}px)` }}
+          >
+            <div
+              className="sheet-drag"
+              onPointerDown={startSheetDrag}
+              onPointerMove={moveSheetDrag}
+              onPointerUp={endSheetDrag}
+              onPointerCancel={endSheetDrag}
+            >
+              <button type="button" aria-label="Aizvērt izvēlni" onClick={() => setMoreOpen(false)}><span /></button>
+            </div>
+            <div className="mobile-sheet-links">
+              {bottomMoreLinks.map((link) => <NavLink key={link.to} to={link.to} onClick={() => setMoreOpen(false)}><span><Icon name={link.icon} />{link.label}</span>{link.badge && <span className="nav-dot" />}</NavLink>)}
+              {user.is_admin && <a href="https://api.raduburzins.lv/admin" target="_blank" rel="noopener noreferrer"><span><Icon name="admin" />Admin panelis</span></a>}
+              <button type="button" onClick={handleLogout} className="mobile-sheet-danger"><span><Icon name="logout" />Izrakstīties</span></button>
+            </div>
+          </section>
+        </div>
+      )}
+    </>
   );
 }
 

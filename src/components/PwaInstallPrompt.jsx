@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
+import api from "../services/api";
 
 const DISMISSED_UNTIL_KEY = "pwa-install-dismissed-until";
 const DISMISSAL_DAYS = 14;
 const PROMPT_DELAY_MS = 2500;
+const NOTIFICATION_DISMISSED_KEY = "push-notification-dismissed-until";
 
 const isIosDevice = () =>
   /iPad|iPhone|iPod/.test(navigator.userAgent) ||
@@ -25,6 +27,9 @@ function PwaInstallPrompt({ enabled }) {
     return dismissedUntil > Date.now();
   });
   const [installed, setInstalled] = useState(() => isStandalone());
+  const [notificationVisible, setNotificationVisible] = useState(false);
+  const [notificationBusy, setNotificationBusy] = useState(false);
+  const [notificationError, setNotificationError] = useState("");
 
   useEffect(() => {
     setIsIos(isIosDevice());
@@ -57,10 +62,9 @@ function PwaInstallPrompt({ enabled }) {
     if (
       !enabled ||
       installed ||
-      dismissed ||
-      (!isIos && !installPrompt)
+      (!installed && (dismissed || (!isIos && !installPrompt)))
     ) {
-      setVisible(false);
+      if (!installed) setVisible(false);
       return undefined;
     }
 
@@ -71,6 +75,24 @@ function PwaInstallPrompt({ enabled }) {
 
     return () => window.clearTimeout(showTimer);
   }, [dismissed, enabled, installPrompt, installed, isIos]);
+
+  useEffect(() => {
+    if (!enabled || !installed || !("Notification" in window) || !("serviceWorker" in navigator)) {
+      setNotificationVisible(false);
+      return;
+    }
+    if (Notification.permission !== "default") {
+      setNotificationVisible(false);
+      return;
+    }
+    const dismissedUntil = Number(window.localStorage.getItem(NOTIFICATION_DISMISSED_KEY) || 0);
+    if (dismissedUntil > Date.now()) {
+      setNotificationVisible(false);
+      return;
+    }
+    const timer = window.setTimeout(() => setNotificationVisible(true), PROMPT_DELAY_MS);
+    return () => window.clearTimeout(timer);
+  }, [enabled, installed]);
 
   const dismissPrompt = () => {
     window.localStorage.setItem(
@@ -97,9 +119,69 @@ function PwaInstallPrompt({ enabled }) {
     }
   };
 
-  if (!enabled || !visible) {
-    return null;
+  const dismissNotificationPrompt = () => {
+    window.localStorage.setItem(NOTIFICATION_DISMISSED_KEY, String(Date.now() + DISMISSAL_DAYS * 24 * 60 * 60 * 1000));
+    setNotificationVisible(false);
+  };
+
+  const enableNotifications = async () => {
+    setNotificationBusy(true);
+    setNotificationError("");
+    try {
+      const permission = await Notification.requestPermission();
+      if (permission !== "granted") {
+        setNotificationVisible(false);
+        return;
+      }
+      const publicKey = import.meta.env.VITE_VAPID_PUBLIC_KEY;
+      if (!publicKey) throw new Error("VAPID publiskā atslēga nav konfigurēta.");
+      const padding = "=".repeat((4 - (publicKey.length % 4)) % 4);
+      const base64 = `${publicKey}${padding}`.replace(/-/g, "+").replace(/_/g, "/");
+      const rawData = window.atob(base64);
+      const applicationServerKey = Uint8Array.from(rawData, (character) => character.charCodeAt(0));
+      const registration = await navigator.serviceWorker.ready;
+      let subscription = await registration.pushManager.getSubscription();
+      if (!subscription) {
+        subscription = await registration.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey,
+        });
+      }
+      await api.post("/api/push-subscriptions", subscription.toJSON());
+      setNotificationVisible(false);
+    } catch (error) {
+      setNotificationError(error?.response?.data?.message || error?.message || "Neizdevās ieslēgt paziņojumus.");
+    } finally {
+      setNotificationBusy(false);
+    }
+  };
+
+  if (!enabled) return null;
+
+  if (notificationVisible) {
+    return (
+      <aside
+        aria-label="Ieslēgt paziņojumus"
+        className="fixed inset-x-3 bottom-3 z-[60] mx-auto max-w-md rounded-2xl border border-[#e0ddcf] bg-white p-4 shadow-[0_16px_48px_rgba(36,23,38,0.22)] sm:bottom-5 sm:p-5"
+      >
+        <div className="flex items-start gap-3">
+          <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#2d232e] text-xl text-[#f1f0ea]">🔔</span>
+          <div className="min-w-0 flex-1">
+            <h2 className="text-base font-extrabold text-dark-purple">Ieslēgt paziņojumus</h2>
+            <p className="mt-1 text-sm leading-5 text-muted">Saņem īsus paziņojumus par ģimenes jaunumiem un svarīgiem notikumiem.</p>
+          </div>
+          <button type="button" onClick={dismissNotificationPrompt} aria-label="Aizvērt paziņojumu piedāvājumu" className="rounded-full px-2 py-1 text-xl leading-none text-muted hover:bg-[#f1f0ea]">&times;</button>
+        </div>
+        {notificationError && <p role="alert" className="mt-3 text-sm font-bold text-red-700">{notificationError}</p>}
+        <div className="mt-4 flex justify-end gap-2">
+          <button type="button" onClick={dismissNotificationPrompt} className="btn-ghost px-4 py-2 text-sm">Vēlāk</button>
+          <button type="button" onClick={enableNotifications} disabled={notificationBusy} className="btn-primary px-4 py-2 text-sm">{notificationBusy ? 'Ieslēdz...' : 'Ieslēgt'}</button>
+        </div>
+      </aside>
+    );
   }
+
+  if (!visible) return null;
 
   return (
     <aside

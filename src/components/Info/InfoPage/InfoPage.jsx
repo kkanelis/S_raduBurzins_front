@@ -1,5 +1,6 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import api from '../../../services/api';
 
 const highlights = [
   {
@@ -19,47 +20,11 @@ const highlights = [
   },
 ];
 
-const updates = [
-  {
-    title: 'Radu Burzinš',
-    text: 'Tagad ir iespēja nolādet "Radu Burziņš" kā aplikāciju telefonā.',
-    icon: '📲',
-    label: 'Jaunums',
-  },
-  {
-    title: 'Paziņojumi',
-    text: 'Ir iespēja saņemt paziņojumus par jaunām iespējām un uzlabojumiem.',
-    icon: '🔔',
-    label: 'Jaunums',
-  },
-  {
-    title: 'Radu pērles',
-    text: 'Tagad ģimenes citātus, notikumus un atmiņas vari dalīties ar kartītēs ar foto un video. Satura atvēršanai papildus logs vairs nav nepieciešams.',
-    icon: '💎',
-    label: 'Jauna sadaļa',
-  },
-  {
-    title: 'Radu pērļu reakcijas',
-    text: 'Uz katru pērli tagad vari ātri reaģēt ar 😂, ❤️, 🤯 vai 🏆. Vienu lietotāju aktīvās reakcijas var mainīt vai noņemt.',
-    icon: '🎉',
-    label: 'Jaunums',
-  },
-  {
-    title: 'Pārskatīta navigācija',
-    text: 'Sadaļas ir sakārtotas grupās “Pamatā”, “Ģimenes saturs” un “Pārvaldība”, tāpēc labākā izvēlne datorā un telefonā ir vieglāk saprotama.',
-    icon: '🧭',
-    label: 'Uzlabojums',
-  },
-  {
-    title: 'Atsauksmes un idejas',
-    text: 'Tagad vari nosūtīt vietnes veidotājam ieteikumu vai atsauksmi tieši no sākumlapas.',
-    icon: '💡',
-    label: 'Jaunums',
-  },
-];
-
 function InfoPage() {
   const location = useLocation();
+  const [updates, setUpdates] = useState([]);
+  const [updatesLoading, setUpdatesLoading] = useState(true);
+  const [updatesError, setUpdatesError] = useState('');
 
   useEffect(() => {
     if (location.hash !== '#site-updates') return;
@@ -69,6 +34,23 @@ function InfoPage() {
       block: 'start',
     });
   }, [location.hash]);
+
+  useEffect(() => {
+    let active = true;
+    api.get('/api/site-updates')
+      .then(({ data }) => {
+        if (!active) return;
+        setUpdates(Array.isArray(data?.updates) ? data.updates : []);
+      })
+      .catch(() => {
+        if (!active) return;
+        setUpdatesError('Neizdevās ielādēt vietnes jaunumus.');
+      })
+      .finally(() => {
+        if (active) setUpdatesLoading(false);
+      });
+    return () => { active = false; };
+  }, []);
 
   return (
     <div className="relative overflow-hidden">
@@ -128,6 +110,15 @@ function InfoPage() {
               </p>
             </div>
 
+            {updatesLoading ? (
+              <div className="grid gap-3 sm:grid-cols-2">
+                {[0, 1, 2, 3].map((item) => <div key={item} className="h-32 animate-pulse rounded-2xl bg-[#f1f0ea]" />)}
+              </div>
+            ) : updatesError ? (
+              <p role="alert" className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-bold text-red-700">{updatesError}</p>
+            ) : updates.length === 0 ? (
+              <p className="rounded-2xl border border-[#ece8e2] bg-white p-5 text-sm text-muted">Jaunu atjauninājumu pagaidām nav.</p>
+            ) : (
             <div className="grid gap-3 sm:grid-cols-2">
               {updates.map((update, index) => (
                 <article
@@ -153,6 +144,7 @@ function InfoPage() {
                 </article>
               ))}
             </div>
+            )}
           </section>
 
           <section>

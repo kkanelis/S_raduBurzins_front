@@ -24,6 +24,8 @@ const MyEvents = lazy(() => import("./components/MyEvents/MyEvents"));
 const Albums = lazy(() => import("./components/Albums/Albums"));
 const FamilyPearls = lazy(() => import("./components/FamilyPearls/FamilyPearls"));
 const Tutorial = lazy(() => import("./components/Info/Tutorial/Tutorial"));
+const UsersProfiles = lazy(() => import("./components/Users/UsersProfiles"));
+const Settings = lazy(() => import("./components/auth/Settings"));
 
 // App root and routing
 const AppContent = () => {
@@ -33,7 +35,7 @@ const AppContent = () => {
     <div className="min-h-screen bg-gradient-to-br from-warm-beige via-off-white to-[var(--bg-2)] flex flex-col">
       {user && <NavBar />}
       <div className={user ? "flex flex-1" : "flex-1"}>
-        <main className={`flex-1 w-full ${user ? "lg:ml-72" : ""}`}>
+        <main className={`app-main flex-1 w-full ${user ? "has-navigation" : ""}`}>
           <Suspense
             fallback={
               <div className="section-shell py-10">
@@ -87,10 +89,26 @@ const AppContent = () => {
                 }
               />
               <Route
+                path="/users"
+                element={
+                  <ProtectedRoute>
+                    <UsersProfiles />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
                 path="/profile"
                 element={
                   <ProtectedRoute>
                     <Profile />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/settings"
+                element={
+                  <ProtectedRoute>
+                    <Settings />
                   </ProtectedRoute>
                 }
               />
@@ -138,7 +156,7 @@ const AppContent = () => {
           </Suspense>
         </main>
       </div>
-      {user && <div className="lg:ml-72"><Footer /></div>}
+      {user && <div className="app-footer"><Footer /></div>}
       <PwaInstallPrompt enabled={Boolean(user)} />
     </div>
   );
