@@ -162,16 +162,27 @@ function PushNotificationSettings() {
           : "Paziņojumi šajā ierīcē ir izslēgti.";
 
   return (
-    <section className="border-t border-[#e9ebe5] pt-6">
-      <div className="mb-4 flex items-center gap-3">
-        <h2 className="shrink-0 text-sm font-extrabold text-dark-purple">
-          Push paziņojumi
-        </h2>
-        <span aria-hidden="true" className="h-px flex-1 bg-[#e9ebe5]" />
-      </div>
+    <section aria-labelledby="push-settings-title">
+      <header className="flex items-start gap-3">
+        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#f1f0ea] text-[#2d232e]">
+          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" className="h-5 w-5" stroke="currentColor" strokeWidth="1.8">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4" />
+          </svg>
+        </span>
+        <span>
+          <h2 id="push-settings-title" className="text-base font-black text-dark-purple">Push paziņojumi</h2>
+          <p className="mt-1 text-xs leading-5 text-muted">Pārvaldi, vai šī ierīce drīkst saņemt vietnes paziņojumus.</p>
+        </span>
+      </header>
 
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <p role="status" className="text-sm text-muted">
+      <div className="mt-5 rounded-2xl border border-[#e9e6de] bg-[#faf9f6] p-4">
+        <p role="status" className="flex min-h-10 items-center gap-2 text-sm text-muted">
+          <span
+            aria-hidden="true"
+            className={`h-2.5 w-2.5 shrink-0 rounded-full ${
+              enabled ? 'bg-[#4f7f5f]' : permission === 'denied' ? 'bg-[#d1344f]' : 'bg-[#b8afa0]'
+            }`}
+          />
           {status}
         </p>
         <button
@@ -184,18 +195,18 @@ function PushNotificationSettings() {
             (permission === "denied" && !enabled)
           }
           aria-pressed={enabled}
-          className="btn-primary w-full rounded-lg px-5 py-3 text-sm disabled:cursor-not-allowed disabled:opacity-70 sm:w-auto"
+          className="btn-primary mt-3 min-h-11 w-full rounded-xl px-5 py-3 text-sm disabled:cursor-not-allowed disabled:opacity-70"
         >
           {busy
             ? "Apstrādā..."
             : enabled
-              ? "Izslēgt paziņojumus"
-              : "Ieslēgt paziņojumus"}
+              ? "Izslēgt paziņojumus šajā ierīcē"
+              : "Ieslēgt paziņojumus šajā ierīcē"}
         </button>
       </div>
 
       {error ? (
-        <p role="alert" className="mt-3 text-sm font-medium text-red-700">
+        <p role="alert" className="mt-3 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-700">
           {error}
         </p>
       ) : null}

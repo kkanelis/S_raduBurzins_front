@@ -2,40 +2,13 @@ import React, { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import api from '../../../services/api';
+import { calendarMonthQueryKey, fetchCalendarMonth } from '../../Calendar/calendarApi';
 
-function parseLocalDate(dateValue) {
-  const [year, month, day] = String(dateValue || '').slice(0, 10).split('-').map(Number);
-  if (!year || !month || !day) return null;
-
-  const date = new Date(year, month - 1, day);
-  date.setHours(0, 0, 0, 0);
-  return date;
-}
-
-function getTodaysItems(responseData, propertyName, date) {
-  const monthDayKey = `${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-  const fullDateKey = `${date.getFullYear()}-${monthDayKey}`;
-
-  if (!Array.isArray(responseData)) {
-    const items = responseData?.[fullDateKey] || responseData?.[monthDayKey] || [];
-    return Array.isArray(items) ? items : [];
-  }
-
-  const matchingDay = responseData.find((item) => {
-    const rawDate = String(item.date || '');
-    return rawDate.length >= 10 ? rawDate.slice(5, 10) === monthDayKey : rawDate === monthDayKey;
-  });
-
-  return Array.isArray(matchingDay?.[propertyName]) ? matchingDay[propertyName] : [];
-}
-
-function getNextAnnualDate(dateValue, today) {
-  const originalDate = parseLocalDate(dateValue);
-  if (!originalDate) return null;
-
-  const nextDate = new Date(today.getFullYear(), originalDate.getMonth(), originalDate.getDate());
-  if (nextDate < today) nextDate.setFullYear(nextDate.getFullYear() + 1);
-  return nextDate;
+function formatDateKey(date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 }
 
 function RegWelcome() {
@@ -44,14 +17,18 @@ function RegWelcome() {
   const [feedbackStatus, setFeedbackStatus] = useState('');
   const [sendingFeedback, setSendingFeedback] = useState(false);
 
-  const { data: nameDaysResponse = [], isLoading: loadingNameDays, isError: nameDaysError } = useQuery({
-    queryKey: ['namedays'],
-    queryFn: async () => {
-      const response = await api.get('/api/namedays');
-      return response.data || [];
-    },
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const todayKey = formatDateKey(today);
+  const nextMonthDate = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+  const { data: currentMonthData, isLoading: loadingCurrentMonth, isError: currentMonthError } = useQuery({
+    queryKey: calendarMonthQueryKey(today.getFullYear(), today.getMonth() + 1),
+    queryFn: () => fetchCalendarMonth(today.getFullYear(), today.getMonth() + 1),
   });
-
+  const { data: nextMonthData, isLoading: loadingNextMonth, isError: nextMonthError } = useQuery({
+    queryKey: calendarMonthQueryKey(nextMonthDate.getFullYear(), nextMonthDate.getMonth() + 1),
+    queryFn: () => fetchCalendarMonth(nextMonthDate.getFullYear(), nextMonthDate.getMonth() + 1),
+  });
   const { data: surnameDaysResponse = [], isLoading: loadingSurnameDays, isError: surnameDaysError } = useQuery({
     queryKey: ['surnames'],
     queryFn: async () => {
@@ -60,91 +37,75 @@ function RegWelcome() {
     },
   });
 
-  const { data: specialDays = [], isLoading: loadingEvents, isError: eventsError } = useQuery({
-    queryKey: ['special-days'],
-    queryFn: async () => {
-      const response = await api.get('/api/special-days');
-      return Array.isArray(response.data) ? response.data : [];
-    },
-  });
-
-  const { data: usersStatus = {}, isLoading: loadingUsers, isError: usersError } = useQuery({
-    queryKey: ['users-status'],
-    queryFn: async () => {
-      const response = await api.get('/api/users/status');
-      return response.data || {};
-    },
-  });
-
   const upcomingDates = useMemo(() => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const lastDate = new Date(`${todayKey}T12:00:00`);
+    lastDate.setDate(lastDate.getDate() + 30);
+    const days = [
+      ...Object.values(currentMonthData?.days || {}),
+      ...Object.values(nextMonthData?.days || {}),
+    ];
+    const items = [];
 
-    const eventDates = specialDays.map((event) => {
-      const date = event.repeats ? getNextAnnualDate(event.date, today) : parseLocalDate(event.date);
-      if (!date || date < today) return null;
+    days.forEach((day) => {
+      if (day.date < todayKey || day.date > formatDateKey(lastDate)) return;
+      const date = new Date(`${day.date}T12:00:00`);
+      const memberNames = (people) => people.map((person) => `${person.first_name} ${person.last_name}`.trim()).join(', ');
 
-      return {
-        id: `event-${event.id}`,
+      day.family_name_days?.forEach((group) => items.push({
+        id: `name-${day.date}-${group.name}`,
+        title: group.name,
+        date,
+        dateKey: day.date,
+        type: 'Vārda diena',
+        detail: memberNames(group.members),
+        isBirthday: false,
+      }));
+      day.family_surname_days?.forEach((group) => items.push({
+        id: `surname-${day.date}-${group.surname}`,
+        title: group.surname,
+        date,
+        dateKey: day.date,
+        type: 'Uzvārda diena',
+        detail: memberNames(group.members),
+        isBirthday: false,
+      }));
+      day.birthdays?.forEach((person) => items.push({
+        id: `birthday-${day.date}-${person.id}`,
+        title: `${person.first_name} ${person.last_name}`.trim(),
+        date,
+        dateKey: day.date,
+        type: 'Dzimšanas diena',
+        detail: `Aprit ${person.age_turning} gadi`,
+        isBirthday: true,
+      }));
+      day.events?.forEach((event) => items.push({
+        id: `event-${event.id}-${day.date}`,
         title: event.title,
         date,
+        dateKey: day.date,
         type: 'Pasākums',
         detail: [event.event_time, event.location].filter(Boolean).join(' · '),
         isBirthday: false,
-      };
+      }));
     });
 
-    const birthdayUsers = Array.isArray(usersStatus.users) ? usersStatus.users : [];
-    const birthdays = Array.from(new Map(birthdayUsers.map((user) => [user.id, user])).values())
-      .filter((user) => user.date_of_birth)
-      .map((user) => ({
-        id: `birthday-${user.id}`,
-        title: `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'Dzimšanas diena',
-        date: getNextAnnualDate(user.date_of_birth, today),
-        type: 'Dzimšanas diena',
-        detail: '',
-        isBirthday: true,
-      }));
+    return items.sort((first, second) => first.date - second.date || first.title.localeCompare(second.title, 'lv'));
+  }, [currentMonthData, nextMonthData, todayKey]);
 
-    return [...eventDates, ...birthdays]
-      .filter(Boolean)
-      .sort((first, second) => first.date - second.date)
-      .slice(0, 5);
-  }, [specialDays, usersStatus.users]);
-
+  const upcomingFamilyDays = upcomingDates.slice(0, 5);
   const todayHighlights = useMemo(() => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    return upcomingDates.filter((item) => item.dateKey === todayKey);
+  }, [todayKey, upcomingDates]);
 
-    const events = specialDays
-      .map((event) => ({
-        id: `event-${event.id}`,
-        title: event.title,
-        date: event.repeats ? getNextAnnualDate(event.date, today) : parseLocalDate(event.date),
-        type: 'Pasākums',
-      }))
-      .filter((item) => item.date?.getTime() === today.getTime());
-
-    const birthdays = (Array.isArray(usersStatus.users) ? usersStatus.users : [])
-      .filter((user) => user.date_of_birth)
-      .map((user) => ({
-        id: `birthday-${user.id}`,
-        title: `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'Dzimšanas diena',
-        date: getNextAnnualDate(user.date_of_birth, today),
-        type: 'Dzimšanas diena',
-      }))
-      .filter((item) => item.date?.getTime() === today.getTime());
-
-    return [...events, ...birthdays];
-  }, [specialDays, usersStatus.users]);
-
-  const loading = loadingEvents || loadingUsers;
-  const hasError = eventsError || usersError;
-  const today = new Date();
-  const todaysNameDays = getTodaysItems(nameDaysResponse, 'names', today);
-  const todaysSurnameDays = getTodaysItems(surnameDaysResponse, 'surnames', today);
-  const loadingToday = loadingNameDays || loadingSurnameDays;
-  const todayError = nameDaysError || surnameDaysError;
+  const loading = loadingCurrentMonth || loadingNextMonth;
+  const hasError = currentMonthError || nextMonthError;
+  const todayData = currentMonthData?.days?.[todayKey];
+  const todaysNameDays = todayData?.name_days || [];
+  const todaysSurnameDays = Array.isArray(surnameDaysResponse)
+    ? surnameDaysResponse.find((item) => String(item.date || '').slice(-5) === todayKey.slice(-5))?.surnames || []
+    : surnameDaysResponse?.[todayKey] || [];
+  const loadingToday = loadingCurrentMonth || loadingSurnameDays;
+  const todayError = currentMonthError || surnameDaysError;
 
   const submitFeedback = async (event) => {
     event.preventDefault();
@@ -208,7 +169,7 @@ function RegWelcome() {
               <span aria-hidden="true" className="text-2xl">✦</span>
             </div>
 
-            {hasError ? (
+            {todayError ? (
               <p role="alert" className="mt-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
                 Neizdevās ielādēt šodienas informāciju.
               </p>
@@ -224,7 +185,9 @@ function RegWelcome() {
                         to="/calendar"
                         className="flex items-center gap-3 rounded-xl bg-[#f5f0f8] px-3 py-2.5 no-underline"
                       >
-                        <span aria-hidden="true" className="text-lg">{item.type === 'Dzimšanas diena' ? '🎂' : '📅'}</span>
+                        <span aria-hidden="true" className="text-lg">
+                          {item.type === 'Dzimšanas diena' ? '🎂' : item.type === 'Vārda diena' ? '✦' : '📅'}
+                        </span>
                         <span className="min-w-0">
                           <span className="block truncate text-sm font-bold text-dark-purple">{item.title}</span>
                           <span className="block text-xs text-muted">{item.type}</span>
@@ -271,15 +234,15 @@ function RegWelcome() {
                 </div>
               ) : loading ? (
                 <div className="py-6 text-sm text-muted">Ielādē tuvākos datumus...</div>
-              ) : upcomingDates.length > 0 ? (
+              ) : upcomingFamilyDays.length > 0 ? (
                 <div className="divide-y divide-[#ece9e5]">
-                  {upcomingDates.map((item) => (
+                  {upcomingFamilyDays.map((item) => (
                     <Link
                       key={item.id}
                       to="/calendar"
                       className="group grid grid-cols-[52px_minmax(0,1fr)] items-center gap-3 py-3 no-underline first:pt-1 last:pb-1 sm:grid-cols-[58px_minmax(0,1fr)_auto]"
                     >
-                      <div className={`flex h-12 w-12 flex-col items-center justify-center rounded-lg ${item.isBirthday ? 'bg-[#eaf2e9] text-[#3f6b45]' : 'bg-[#fff0e8] text-[#a95e3e]'}`}>
+                      <div className={`flex h-12 w-12 flex-col items-center justify-center rounded-lg ${item.isBirthday ? 'bg-[#e8f1ea] text-[#4f7f5f]' : item.type === 'Vārda diena' ? 'bg-[#eceffa] text-[#5b6fc4]' : item.type === 'Uzvārda diena' ? 'bg-[#fbf1e1] text-[#b9762a]' : 'bg-[#fbeaed] text-[#d1344f]'}`}>
                         <span className="text-lg font-black leading-none">{item.date.getDate()}</span>
                         <span className="mt-1 text-[9px] font-bold uppercase leading-none">
                           {item.date.toLocaleDateString('lv-LV', { month: 'short' }).replace('.', '')}
@@ -291,7 +254,7 @@ function RegWelcome() {
                           {item.type}{item.detail ? ` · ${item.detail}` : ''}
                         </div>
                       </div>
-                      <span className={`col-start-2 w-fit rounded-md px-2 py-1 text-[10px] font-bold sm:col-start-auto ${item.isBirthday ? 'bg-[#eaf2e9] text-[#3f6b45]' : 'bg-[#fff0e8] text-[#a95e3e]'}`}>
+                      <span className={`col-start-2 w-fit rounded-md px-2 py-1 text-[10px] font-bold sm:col-start-auto ${item.isBirthday ? 'bg-[#e8f1ea] text-[#4f7f5f]' : item.type === 'Vārda diena' ? 'bg-[#eceffa] text-[#5b6fc4]' : item.type === 'Uzvārda diena' ? 'bg-[#fbf1e1] text-[#b9762a]' : 'bg-[#fbeaed] text-[#d1344f]'}`}>
                         {item.date.toLocaleDateString('lv-LV', { day: 'numeric', month: 'long' })}
                       </span>
                     </Link>

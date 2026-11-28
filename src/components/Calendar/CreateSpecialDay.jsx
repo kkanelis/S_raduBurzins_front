@@ -7,12 +7,14 @@ import BasePopup from '../BasePopoup';
 
 registerLocale('lv', lv);
 
-function CreateSpecialDay({ onClose, onSuccess }) {
+function CreateSpecialDay({ onClose, onSuccess, initialDate }) {
   // Form state
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    date: null,
+    date: initialDate
+      ? new Date(initialDate.getFullYear(), initialDate.getMonth(), initialDate.getDate())
+      : null,
     repeats: false,
     is_public: true,
     location: '',

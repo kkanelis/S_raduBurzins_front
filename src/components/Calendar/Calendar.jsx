@@ -1,18 +1,9 @@
-import React, { useMemo, useState } from 'react';
-
-import api from '../../services/api';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import CalendarDayDetails from './CalendarDayDetails';
 import CreateSpecialDay from './CreateSpecialDay';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import {
-  extractMonthDayKey,
-  formatDateKey,
-  formatMonthDayKey,
-  getMonthMatrix,
-  normalizeItems,
-  resolveItems,
-  uniqueById,
-} from './calendarUtils';
+import { calendarMonthQueryKey, fetchCalendarMonth } from './calendarApi';
+import { formatDateKey, getMonthMatrix } from './calendarUtils';
 
 const MONTH_NAMES = [
   'janvāris',
@@ -31,347 +22,393 @@ const MONTH_NAMES = [
 
 const WEEKDAY_LABELS = ['Pr', 'Ot', 'Tr', 'Ce', 'Pk', 'Se', 'Sv'];
 
+const emptyDay = (date) => ({
+  date,
+  name_days: [],
+  surname_days: [],
+  family_name_days: [],
+  family_surname_days: [],
+  birthdays: [],
+  events: [],
+});
+
+function getDayChips(day) {
+  const chips = [];
+  const seen = new Set();
+
+  const addChip = (type, label) => {
+    const key = `${type}:${label}`;
+    if (seen.has(key)) return;
+    seen.add(key);
+    chips.push({ type, label });
+  };
+
+  day.birthdays.forEach((person) => {
+    addChip(
+      'birthday',
+      person.is_me ? 'Tava dzimšanas diena' : `${person.first_name} ${person.last_name}`,
+    );
+  });
+  day.family_name_days.forEach((group) => {
+    addChip(
+      'name',
+      group.members.some((member) => member.is_me) ? 'Tava vārda diena' : group.name,
+    );
+  });
+  day.family_surname_days.forEach((group) => {
+    addChip(
+      'surname',
+      group.members.some((member) => member.is_me) ? 'Tava uzvārda diena' : group.surname,
+    );
+  });
+  day.events.forEach((event) => addChip('event', event.title));
+
+  return chips;
+}
+
+function dateFromKey(value) {
+  return new Date(`${value}T12:00:00`);
+}
+
 function Calendar() {
   const queryClient = useQueryClient();
-
-  const { data: nameDaysResponse = [], isLoading: namedaysLoading, isError: namedaysError } = useQuery({
-    queryKey: ["namedays"],
-    queryFn: async () => {
-      const response = await api.get("/api/namedays");
-      return response.data || [];
-    },
-  });
-
-  const { data: surnameDaysResponse = [], isLoading: surnamesLoading, isError: surnamesError } = useQuery({
-    queryKey: ["surnames"],
-    queryFn: async () => {
-      const response = await api.get("/api/surnames");
-      return response.data || [];
-    },
-  });
-
-  const nameDaysData = useMemo(
-    () => Array.isArray(nameDaysResponse)
-      ? normalizeItems(nameDaysResponse, 'names')
-      : nameDaysResponse,
-    [nameDaysResponse],
-  );
-
-  const surnameDaysData = useMemo(
-    () => Array.isArray(surnameDaysResponse)
-      ? normalizeItems(surnameDaysResponse, 'surnames')
-      : surnameDaysResponse,
-    [surnameDaysResponse],
-  );
-
-  const { data: specialDays = [], isLoading: specialDaysLoading, isError: specialDaysError } = useQuery({
-    queryKey: ["special-days"],
-    queryFn: async () => {
-      const response = await api.get("/api/special-days");
-      return Array.isArray(response.data) ? response.data : [];
-    },
-  });
-
-  const { data: usersStatus = [], isLoading: usersLoading, isError: usersError } = useQuery({
-    queryKey: ["users-status"],
-    queryFn: async () => {
-      const response = await api.get("/api/users/status");
-      return response.data;
-    },
-  });
-
-  const birthdayUsers = useMemo(
-    () => uniqueById(usersStatus.users || []).filter((user) => user.date_of_birth),
-    [usersStatus],
-  );
-
-  const [selectedDate, setSelectedDate] = useState(new Date());
-  const [selectedDay, setSelectedDay] = useState(null);
+  const [selectedDate, setSelectedDate] = useState(() => new Date());
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const loading = namedaysLoading || surnamesLoading || specialDaysLoading || usersLoading;
-  const error = namedaysError || surnamesError || specialDaysError || usersError;
+  const [focusDateKey, setFocusDateKey] = useState(null);
+  const touchStartX = useRef(null);
+  const dayButtonRefs = useRef(new Map());
 
   const currentYear = selectedDate.getFullYear();
   const currentMonth = selectedDate.getMonth();
-  const monthCells = useMemo(() => getMonthMatrix(currentYear, currentMonth), [currentYear, currentMonth]);
+  const monthNumber = currentMonth + 1;
+  const queryKey = calendarMonthQueryKey(currentYear, monthNumber);
+  const {
+    data: calendarData,
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey,
+    queryFn: () => fetchCalendarMonth(currentYear, monthNumber),
+  });
 
-  const specialDaysByDate = useMemo(() => {
-    const map = {};
-
-    specialDays.forEach((day) => {
-      const rawDate = String(day.date || '');
-      const fullKey = rawDate.slice(0, 10);
-      const monthDayKey = extractMonthDayKey(rawDate);
-      const keys = day.repeats ? [monthDayKey] : [fullKey];
-
-      keys.forEach((key) => {
-        if (!key) return;
-        if (!map[key]) map[key] = [];
-        map[key].push(day);
+  useEffect(() => {
+    [-1, 1].forEach((offset) => {
+      const adjacent = new Date(currentYear, currentMonth + offset, 1);
+      const year = adjacent.getFullYear();
+      const month = adjacent.getMonth() + 1;
+      queryClient.prefetchQuery({
+        queryKey: calendarMonthQueryKey(year, month),
+        queryFn: () => fetchCalendarMonth(year, month),
       });
     });
+  }, [currentMonth, currentYear, queryClient]);
 
-    return map;
-  }, [specialDays]);
+  useEffect(() => {
+    if (!focusDateKey) return;
+    const button = dayButtonRefs.current.get(focusDateKey);
+    if (button) {
+      button.focus();
+      setFocusDateKey(null);
+    }
+  }, [calendarData, currentMonth, currentYear, focusDateKey]);
 
-  const birthdayUsersByDate = useMemo(() => {
-    const map = {};
-
-    birthdayUsers.forEach((user) => {
-      const rawDate = String(user.date_of_birth || '');
-      const fullKey = rawDate.slice(0, 10);
-      const monthDayKey = extractMonthDayKey(rawDate);
-      [fullKey, monthDayKey].forEach((key) => {
-        if (!key) return;
-        if (!map[key]) map[key] = [];
-        map[key].push(user);
-      });
-    });
-
-    return map;
-  }, [birthdayUsers]);
-
-  const surnameDaysByDate = useMemo(() => {
-    const map = {};
-
-    Object.entries(surnameDaysData).forEach(([key, values]) => {
-      map[key] = Array.isArray(values) ? values : [];
-    });
-
-    return map;
-  }, [surnameDaysData]);
-
-  // Kalendāra navigācijas funkcijas
-
-  const handlePreviousMonth = () => {
-    setSelectedDate((prev) => new Date(prev.getFullYear(), prev.getMonth() - 1, 1));
-  };
-
-  const handleNextMonth = () => {
-    setSelectedDate((prev) => new Date(prev.getFullYear(), prev.getMonth() + 1, 1));
-  };
-
-  const handleToday = () => {
-    setSelectedDate(new Date());
-  };
-
-  // Dienas detaļu funkcijas
-
-  const openDay = (date) => {
-    const fullKey = formatDateKey(date);
-    const monthDayKey = formatMonthDayKey(date);
-
-    setSelectedDay({
-      date,
-      dateKey: fullKey,
-      names: nameDaysData[fullKey] || nameDaysData[monthDayKey] || [],
-      surnames: surnameDaysByDate[fullKey] || surnameDaysByDate[monthDayKey] || [],
-      birthdays: birthdayUsersByDate[fullKey] || birthdayUsersByDate[monthDayKey] || [],
-      specials: specialDaysByDate[fullKey] || specialDaysByDate[monthDayKey] || [],
-    });
-  };
-
-  const closeDayPopup = () => {
-    setSelectedDay(null);
-  };
-
+  const monthCells = useMemo(
+    () => getMonthMatrix(currentYear, currentMonth),
+    [currentYear, currentMonth],
+  );
+  const monthDays = calendarData?.days || {};
+  const selectedDateKey = formatDateKey(selectedDate);
+  const selectedDay = monthDays[selectedDateKey] || emptyDay(selectedDateKey);
   const monthLabel = `${MONTH_NAMES[currentMonth]} ${currentYear}`;
+
+  const updateMonth = (offset) => {
+    setSelectedDate((current) => new Date(current.getFullYear(), current.getMonth() + offset, 1));
+  };
+
+  const handleToday = () => setSelectedDate(new Date());
+  const openDay = (date) => setSelectedDate(date);
+
+  const handleDayKeyDown = (event, date) => {
+    const offsets = {
+      ArrowLeft: -1,
+      ArrowRight: 1,
+      ArrowUp: -7,
+      ArrowDown: 7,
+    };
+    const offset = offsets[event.key];
+    if (!offset) return;
+
+    event.preventDefault();
+    const nextDate = new Date(date);
+    nextDate.setDate(nextDate.getDate() + offset);
+    setFocusDateKey(formatDateKey(nextDate));
+    setSelectedDate(nextDate);
+  };
+
+  const handleTouchStart = (event) => {
+    touchStartX.current = event.changedTouches[0]?.clientX ?? null;
+  };
+
+  const handleTouchEnd = (event) => {
+    if (touchStartX.current === null) return;
+    const endX = event.changedTouches[0]?.clientX ?? touchStartX.current;
+    const distance = endX - touchStartX.current;
+    touchStartX.current = null;
+    if (Math.abs(distance) < 70) return;
+    updateMonth(distance > 0 ? -1 : 1);
+  };
+
+  const monthlyFamilyDays = Object.values(monthDays)
+    .filter((day) => day.family_name_days.length
+      || day.family_surname_days.length
+      || day.birthdays.length
+      || day.events.length);
+
   return (
     <div className="relative overflow-hidden">
       <div className="absolute inset-0 hero-grid opacity-50 pointer-events-none" />
       <div className="section-shell relative py-4 sm:py-7 lg:py-10">
-        <div className="space-y-4 sm:space-y-5">
-          <div className="card surface-strong p-4 sm:p-6">
-            <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
-              <div className="min-w-0">
-                <div className="eyebrow">
-                  <span aria-hidden="true">✦</span>
-                  <span>Kalendārs</span>
-                </div>
-                <h1 className="mt-2 text-3xl font-black text-dark-purple">Kalendārs</h1>
-                <p className="mt-2 max-w-xl text-sm text-muted">
-                  Vārda dienas, dzimšanas dienas un ģimenes notikumi vienuviet.
-                </p>
-              </div>
-
-              <div className="grid grid-cols-[auto_minmax(0,1fr)] gap-2 sm:flex sm:shrink-0">
-                <button type="button" onClick={handleToday} className="btn-ghost w-full sm:w-auto">
-                  Šodien
-                </button>
-                <button type="button" onClick={() => setShowCreateModal(true)} className="btn-primary w-full sm:w-auto">
-                  <span aria-hidden="true">+</span> Jauns notikums
-                </button>
-              </div>
+        <header className="card surface-strong mb-4 p-4 sm:mb-5 sm:p-6">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+            <div className="min-w-0">
+              <div className="eyebrow"><span aria-hidden="true">✦</span><span>Ģimene</span></div>
+              <h1 className="mt-2 text-3xl font-black text-dark-purple">Kalendārs</h1>
+              <p className="mt-2 max-w-xl text-sm text-muted">
+                Vārda un uzvārda dienas, dzimšanas dienas un ģimenes notikumi vienuviet.
+              </p>
             </div>
-          </div>
-
-          {error && (
-            <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-              {error}
-            </div>
-          )}
-
-          <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_260px]">
-            <aside
-              aria-labelledby="calendar-legend-title"
-              className="order-first h-fit rounded-2xl border border-white/80 bg-white/80 p-4 shadow-soft sm:p-5 lg:sticky lg:top-5 lg:order-last"
+            <button
+              type="button"
+              onClick={() => setShowCreateModal(true)}
+              className="calendar-header-create btn-primary shrink-0"
             >
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <h2 id="calendar-legend-title" className="text-sm font-extrabold text-dark-purple">
-                    Notikumu veidi
-                  </h2>
-                  <p className="mt-1 text-xs text-muted">Krāsainie punkti atzīmē dienas notikumus.</p>
-                </div>
-                <span aria-hidden="true" className="text-lg leading-none">✦</span>
-              </div>
-              <ul className="mt-4 grid grid-cols-2 gap-2 sm:gap-3 lg:grid-cols-1">
-                <li className="flex min-w-0 items-center gap-2.5 rounded-xl border border-[#d8e0fb] bg-[#f7f8ff] px-3 py-2.5">
-                  <span aria-hidden="true" className="h-3 w-3 shrink-0 rounded-full bg-[#5372c9] ring-4 ring-[#5372c9]/10" />
-                  <span className="min-w-0 text-xs font-bold leading-tight text-dark-purple sm:text-sm">Vārda dienas</span>
-                </li>
-                <li className="flex min-w-0 items-center gap-2.5 rounded-xl border border-[#efdfc0] bg-[#fffaf0] px-3 py-2.5">
-                  <span aria-hidden="true" className="h-3 w-3 shrink-0 rounded-full bg-[#b77a23] ring-4 ring-[#b77a23]/10" />
-                  <span className="min-w-0 text-xs font-bold leading-tight text-dark-purple sm:text-sm">Uzvārda dienas</span>
-                </li>
-                <li className="flex min-w-0 items-center gap-2.5 rounded-xl border border-[#cfe0d0] bg-[#f5faf4] px-3 py-2.5">
-                  <span aria-hidden="true" className="h-3 w-3 shrink-0 rounded-full bg-[#54805a] ring-4 ring-[#54805a]/10" />
-                  <span className="min-w-0 text-xs font-bold leading-tight text-dark-purple sm:text-sm">Dzimšanas dienas</span>
-                </li>
-                <li className="flex min-w-0 items-center gap-2.5 rounded-xl border border-[#DC143C] bg-[#FFEDF0] px-3 py-2.5">
-                  <span aria-hidden="true" className="h-3 w-3 shrink-0 rounded-full bg-[#DC143C] ring-4 ring-[#DC143C]/10" />
-                  <span className="min-w-0 text-xs font-bold leading-tight text-dark-purple sm:text-sm">Īpaši notikumi</span>
-                </li>
-              </ul>
-              <div className="mt-3 flex items-center gap-2 border-t border-black/5 pt-3 text-xs text-muted">
-                <span aria-hidden="true" className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[#315844] px-1 text-[10px] font-extrabold text-white">
-                  {new Date().getDate()}
-                </span>
-                <span>Šodien</span>
-              </div>
-            </aside>
+              <span aria-hidden="true">+</span> Jauns notikums
+            </button>
+          </div>
+        </header>
 
-            <div className="order-last card surface-strong min-w-0 p-2.5 sm:p-4 lg:order-first lg:p-5">
-              <div className="mb-3 flex flex-col gap-3 sm:mb-4 sm:flex-row sm:items-center sm:justify-between">
-                <div className="flex items-center justify-between gap-2 sm:justify-start sm:gap-3">
+        {isError && (
+          <div role="alert" className="mb-4 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            Kalendāra datus neizdevās ielādēt. Pamēģini vēlreiz pēc brīža.
+          </div>
+        )}
+
+        <div className="calendar-month-shell">
+          <div className="calendar-month-layout">
+            <section className="calendar-month-card card surface-strong min-w-0 p-3 sm:p-5" aria-label="Ģimenes kalendārs">
+              <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+                <div className="flex min-w-0 flex-1 items-center justify-between gap-2 sm:flex-none sm:justify-start">
                   <button
                     type="button"
-                    onClick={handlePreviousMonth}
+                    onClick={() => updateMonth(-1)}
                     aria-label="Iepriekšējais mēnesis"
-                    title="Iepriekšējais mēnesis"
-                    className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-black/10 bg-white text-lg font-bold text-dark-purple shadow-sm transition hover:bg-[#f1f4ef] focus:outline-none focus:ring-2 focus:ring-medium-purple/30 sm:rounded-full"
+                    className="calendar-month-nav"
                   >
                     <span aria-hidden="true">←</span>
                   </button>
-                  <h2 className="min-w-0 flex-1 text-center text-base font-black capitalize text-dark-purple sm:min-w-[12rem] sm:text-xl">
+                  <h2 className="min-w-0 flex-1 text-center text-lg font-black capitalize text-dark-purple sm:min-w-[12rem] sm:flex-none sm:text-xl">
                     {monthLabel}
                   </h2>
                   <button
                     type="button"
-                    onClick={handleNextMonth}
+                    onClick={() => updateMonth(1)}
                     aria-label="Nākamais mēnesis"
-                    title="Nākamais mēnesis"
-                    className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-black/10 bg-white text-lg font-bold text-dark-purple shadow-sm transition hover:bg-[#f1f4ef] focus:outline-none focus:ring-2 focus:ring-medium-purple/30 sm:rounded-full"
+                    className="calendar-month-nav"
                   >
                     <span aria-hidden="true">→</span>
                   </button>
                 </div>
-                <div className="hidden text-sm text-muted sm:block">
-                  {loading ? 'Ielādē...' : 'Izvēlies dienu detaļām'}
-                </div>
+                <button type="button" onClick={handleToday} className="btn-ghost min-h-11 px-4 text-sm">
+                  Šodien
+                </button>
               </div>
 
-              <div className="grid grid-cols-7 gap-1 sm:gap-2">
-                {WEEKDAY_LABELS.map((label, index) => (
-                  <div
-                    key={`${label}-${index}`}
-                    className={`rounded-md px-0.5 py-2 text-center text-[10px] font-extrabold sm:rounded-lg sm:py-2.5 sm:text-xs ${index >= 5 ? 'bg-[#ece8f0] text-[#584d62]' : 'bg-[#f1f4ef] text-[#526456]'}`}
-                  >
-                    {label}
-                  </div>
-                ))}
+              <div className="mb-2 flex items-center justify-between text-xs text-muted">
+                <span>{isLoading ? 'Ielādē kalendāru…' : 'Izvēlies dienu, lai apskatītu detaļas.'}</span>
+                <span className="hidden sm:inline">Pārvelc pa kreisi vai pa labi, lai mainītu mēnesi.</span>
+              </div>
 
-                {monthCells.map((date, index) => {
-                  if (!date) {
-                    return <div key={`empty-${index}`} aria-hidden="true" className="min-h-[64px] rounded-lg bg-[#f7f8f5] sm:min-h-[100px] sm:rounded-xl lg:min-h-[112px]" />;
-                  }
+              <div
+                className="calendar-grid-gesture"
+                onTouchStart={handleTouchStart}
+                onTouchEnd={handleTouchEnd}
+                onTouchCancel={() => { touchStartX.current = null; }}
+              >
+                <div className="calendar-weekdays" aria-hidden="true">
+                  {WEEKDAY_LABELS.map((label, index) => (
+                    <div key={`${label}-${index}`} className={index > 4 ? 'calendar-weekday calendar-weekday-weekend' : 'calendar-weekday'}>
+                      {label}
+                    </div>
+                  ))}
+                </div>
+                <div
+                  key={`${currentYear}-${monthNumber}`}
+                  className="calendar-day-grid"
+                  role="group"
+                  aria-label={`${monthLabel} dienas`}
+                  aria-busy={isLoading}
+                >
+                  {monthCells.map((date, index) => {
+                    if (!date) {
+                      return <div key={`empty-${index}`} className="calendar-day-empty" aria-hidden="true" />;
+                    }
 
-                  const fullKey = formatDateKey(date);
-                  const monthDayKey = formatMonthDayKey(date);
-                  const names = resolveItems(nameDaysData, date);
-                  const surnames = surnameDaysByDate[fullKey] || surnameDaysByDate[monthDayKey] || [];
-                  const birthdays = birthdayUsersByDate[fullKey] || birthdayUsersByDate[monthDayKey] || [];
-                  const specials = resolveItems(specialDaysByDate, date);
-                  const isToday = formatDateKey(new Date()) === fullKey;
-                  const hasBirthday = birthdays.length > 0;
-                  const hasEvent = specials.length > 0;
-                  const hasSurnameDay = surnames.length > 0;
+                    const dateKey = formatDateKey(date);
+                    const day = monthDays[dateKey] || emptyDay(dateKey);
+                    const chips = getDayChips(day);
+                    const isToday = formatDateKey(new Date()) === dateKey;
+                    const isSelected = selectedDateKey === dateKey;
+                    const isMine = day.birthdays.some((person) => person.is_me)
+                      || day.family_name_days.some((group) => group.members.some((member) => member.is_me))
+                      || day.family_surname_days.some((group) => group.members.some((member) => member.is_me));
+                    const priority = day.birthdays.length
+                      ? 'birthday'
+                      : day.family_name_days.length
+                        ? 'name'
+                        : day.family_surname_days.length
+                          ? 'surname'
+                          : day.events.length
+                            ? 'event'
+                            : '';
+                    const isWeekend = (index % 7) > 4;
+                    const labels = chips.map((chip) => chip.label);
+                    const accessibleLabel = [
+                      `${date.getDate()}. ${MONTH_NAMES[currentMonth]}`,
+                      isToday ? 'šodien' : '',
+                      ...labels,
+                    ].filter(Boolean).join(', ');
 
-                  const cellClasses = [
-                    'group flex min-h-[64px] flex-col rounded-lg border p-1.5 text-left transition-colors focus:outline-none focus:ring-2 focus:ring-medium-purple/30 sm:min-h-[100px] sm:rounded-xl sm:p-2.5 lg:min-h-[112px]',
-                    hasBirthday
-                      ? 'border-[#9bb99e] bg-[#f1f7f0] hover:bg-[#e9f3e8]'
-                      : hasEvent
-                        ? 'border-[#edb18f] bg-[#fff6f0] hover:bg-[#fff0e6]'
-                        : isToday
-                          ? 'border-[#466c52] bg-[#edf4ed] ring-1 ring-[#466c52]/20'
-                          : 'border-[#e7e9e4] bg-white hover:border-[#b7c4b8] hover:bg-[#fbfcfa]',
-                  ].join(' ');
-
-                  return (
-                    <button
-                      key={fullKey}
-                      type="button"
-                      onClick={() => openDay(date)}
-                      aria-label={`${date.getDate()}. ${MONTH_NAMES[currentMonth]}${isToday ? ', šodien' : ''}${hasSurnameDay ? ', uzvārda diena' : ''}${hasBirthday ? ', dzimšanas diena' : ''}${hasEvent ? ', īpašs notikums' : ''}`}
-                      className={cellClasses}
-                    >
-                      <div className="flex w-full items-center justify-between gap-1">
-                        <span className={`inline-flex h-6 min-w-6 items-center justify-center rounded-full px-1 text-xs font-extrabold leading-none sm:h-7 sm:min-w-7 sm:text-sm ${isToday ? 'bg-[#315844] text-white' : 'text-[#29382d]'}`}>
+                    return (
+                      <button
+                        key={dateKey}
+                        ref={(element) => {
+                          if (element) dayButtonRefs.current.set(dateKey, element);
+                          else dayButtonRefs.current.delete(dateKey);
+                        }}
+                        type="button"
+                        aria-label={accessibleLabel}
+                        aria-current={isSelected ? 'date' : undefined}
+                        onClick={() => openDay(date)}
+                        onKeyDown={(event) => handleDayKeyDown(event, date)}
+                        className={[
+                          'calendar-day-button',
+                          priority ? `calendar-day-${priority}` : '',
+                          isWeekend && !priority ? 'calendar-day-weekend' : '',
+                          isSelected ? 'calendar-day-selected' : '',
+                          isMine ? 'calendar-day-mine' : '',
+                        ].filter(Boolean).join(' ')}
+                      >
+                        <span className={`calendar-day-number ${isToday ? 'calendar-day-number-today' : ''}`}>
                           {date.getDate()}
                         </span>
-                        {isToday && <span className="hidden text-[10px] font-bold text-[#315844] sm:inline">Šodien</span>}
-                      </div>
-
-                      <div className="mt-1 hidden w-full space-y-1 overflow-hidden sm:block">
-                        {names.slice(0, 2).map((item) => (
-                          <div
-                            key={`${monthDayKey}-${item}`}
-                            className="line-clamp-1 text-[10px] font-semibold text-dark-purple lg:text-xs"
-                          >
-                            {item}
-                          </div>
-                        ))}
-                      </div>
-
-                      <div className="mt-auto flex min-h-2 items-center gap-1.5 pt-1" aria-hidden="true">
-                        {names.length > 0 && <span className="h-2 w-2 rounded-full bg-[#5372c9] ring-1 ring-white" />}
-                        {hasSurnameDay && <span className="h-2 w-2 rounded-full bg-[#b77a23] ring-1 ring-white" />}
-                        {hasBirthday && <span className="h-2 w-2 rounded-full bg-[#54805a] ring-1 ring-white" />}
-                        {hasEvent && <span className="h-2 w-2 rounded-full bg-[#DC143C] ring-1 ring-white" />}
-                      </div>
-                    </button>
-                  );
-                })}
+                        {isToday && <span className="calendar-today-word">Šodien</span>}
+                        {day.name_days.length > 0 && (
+                          <span className="calendar-day-names" title={day.name_days.join(', ')}>
+                            {day.name_days.join(', ')}
+                          </span>
+                        )}
+                        <span className="calendar-day-chips" aria-hidden="true">
+                          {chips.slice(0, 2).map((chip, chipIndex) => (
+                            <span
+                              key={`${chip.type}-${chip.label}-${chipIndex}`}
+                              className={`calendar-event-chip calendar-event-chip-${chip.type}`}
+                              title={chip.label}
+                            >
+                              <span className="calendar-chip-dot" />
+                              <span className="calendar-event-chip-label">{chip.label}</span>
+                            </span>
+                          ))}
+                          {chips.length > 2 && <span className="calendar-more-chips">+{chips.length - 2}</span>}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
-            </div>
+              <div className="calendar-legend" aria-label="Notikumu leģenda">
+                <span className="calendar-legend-item">
+                  <span aria-hidden="true" className="calendar-legend-dot calendar-legend-dot-name" />
+                  Vārda diena
+                </span>
+                <span className="calendar-legend-item">
+                  <span aria-hidden="true" className="calendar-legend-dot calendar-legend-dot-surname" />
+                  Uzvārda diena
+                </span>
+                <span className="calendar-legend-item">
+                  <span aria-hidden="true" className="calendar-legend-dot calendar-legend-dot-birthday" />
+                  Dzimšanas diena
+                </span>
+                <span className="calendar-legend-item">
+                  <span aria-hidden="true" className="calendar-legend-dot calendar-legend-dot-event" />
+                  Ģimenes notikums
+                </span>
+              </div>
+            </section>
 
+            <aside className="calendar-side-column" aria-label="Izvēlētās dienas informācija">
+              <CalendarDayDetails
+                day={selectedDay}
+                loading={isLoading}
+                error={isError}
+                onCreateEvent={() => setShowCreateModal(true)}
+              />
+              <section className="calendar-month-summary card surface-strong p-4 sm:p-5">
+                <h2 className="text-sm font-extrabold text-dark-purple">Šī mēneša ģimenes dienas</h2>
+                {monthlyFamilyDays.length > 0 ? (
+                  <ul className="mt-3 max-h-72 space-y-1 overflow-y-auto">
+                    {monthlyFamilyDays.map((day) => {
+                      const date = dateFromKey(day.date);
+                      const summaries = [
+                        ...day.family_name_days.map((item) => item.name),
+                        ...day.family_surname_days.map((item) => item.surname),
+                        ...day.birthdays.map((person) => person.is_me ? 'Tava dzimšanas diena' : person.first_name),
+                        ...day.events.map((event) => event.title),
+                      ];
+                      const isPast = day.date < formatDateKey(new Date());
+
+                      return (
+                        <li key={day.date}>
+                          <button
+                            type="button"
+                            onClick={() => setSelectedDate(date)}
+                            className={`calendar-summary-item ${isPast ? 'calendar-summary-past' : ''}`}
+                          >
+                            <span className="calendar-summary-date">{date.getDate()}. {MONTH_NAMES[date.getMonth()]}</span>
+                            <span className="calendar-summary-label">{summaries.slice(0, 2).join(' · ')}</span>
+                          </button>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                ) : (
+                  <p className="mt-2 text-sm text-muted">Šajā mēnesī nav ģimenes dienu vai notikumu.</p>
+                )}
+              </section>
+            </aside>
+
+            <button
+              type="button"
+              onClick={() => setShowCreateModal(true)}
+              className="calendar-floating-create"
+            >
+              <span aria-hidden="true">+</span> Jauns notikums
+            </button>
           </div>
         </div>
       </div>
 
       {showCreateModal && (
         <CreateSpecialDay
+          initialDate={selectedDate}
           onClose={() => setShowCreateModal(false)}
-          onSuccess={(created) => {
-            queryClient.setQueryData(["special-days"], (current = []) => [created, ...current]);
-            queryClient.invalidateQueries({ queryKey: ["user-special-days"] });
+          onSuccess={() => {
+            queryClient.invalidateQueries({ queryKey: ['calendar-month'] });
+            queryClient.invalidateQueries({ queryKey: ['special-days'] });
+            queryClient.invalidateQueries({ queryKey: ['user-special-days'] });
             setShowCreateModal(false);
           }}
         />
       )}
-
-      {selectedDay && <CalendarDayDetails day={selectedDay} onClose={closeDayPopup} />}
     </div>
   );
 }

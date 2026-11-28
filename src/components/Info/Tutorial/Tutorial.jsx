@@ -4,42 +4,55 @@ const steps = [
   {
     title: 'Sāc ar galveno izvēlni',
     icon: '🧭',
-    description: 'Vietnes sadaļas atver no navigācijas izvēlnes. Lielā ekrānā tā atrodas kreisajā malā; telefonā vai šaurā logā vispirms nospied izvēlnes pogu augšā. Izvēlies sadaļu, kuru vēlies izmantot.',
+    description: 'Datorā galvenās sadaļas atrodas kreisajā navigācijas joslā. Telefonā izmanto apakšējo navigāciju; pārējās sadaļas atver ar “Vairāk”.',
     tips: [
-      'Kalendārs rāda vārda un uzvārda dienas, ģimenes dzimšanas dienas un īpašos pasākumus.',
-      'Notikumi ir vieta, kur apskatīt un pārvaldīt tavus pievienotos pasākumus.',
-      'Albumos vari glabāt un apskatīt ģimenes fotogrāfijas.',
-      'Profila sadaļu atver ar savu vārdu vai profila ikonu izvēlnes apakšdaļā.',
-      'Lai atgrieztos sākuma lapā, izvēlies vietnes “Radu Burziņš” nosaukumu izvēlnes augšdaļā.',
+      'Telefonā apakšējā joslā vienmēr pieejami Sākums, Kalendārs, Lietotāji un Albumi.',
+      'Pieskaries “Vairāk”, lai atvērtu Radu pērles, Manus notikumus, Ceļvedi un Iestatījumus.',
+      'Profila avatārs mobilās lapas augšā un profila kartīte datorā ved uz tavu profilu.',
+      'Datorā profila izvēlnē pieejami Iestatījumi un izrakstīšanās.',
+      'Lai atgrieztos sākumā, izvēlies “Sākums” vai vietnes logo.',
     ],
   },
   {
     title: 'Sakārto savu profilu',
     icon: '👤',
-    description: 'Profila lapā pārbaudi, vai informācija par tevi ir pareiza. Maini vajadzīgos laukus un spied “Saglabāt profilu”, lai izmaiņas stātos spēkā.',
+    description: 'Profila redaktorā vari pielāgot profila izskatu un izvēlēties, kādu informāciju vēlies parādīt ģimenes locekļiem.',
     tips: [
-      'Pārbaudi vārdu, uzvārdu, iesauku, tālruni un e-pasta adresi.',
-      'Pievieno vai izlabo dzimšanas datumu. Tas tiek izmantots ģimenes kalendārā, lai parādītu tavu dzimšanas dienu.',
-      'Lai nomainītu profila attēlu, sadaļā “Profila attēls” spied faila izvēles lauku un izvēlies attēlu savā ierīcē.',
-      'Pirms lapas aizvēršanas noteikti nospied “Saglabāt profilu”; veiksmīgas saglabāšanas paziņojums parādīsies lapā.',
+      'Sadaļā “Dizains” izvēlies komplektu, pielāgo fona un akcenta krāsu vai atjauno noklusējuma dizainu.',
+      'Sadaļā “Profila informācija” vari pievienot aprakstu, iesauku, dzīvesvietu, hobijus, citātu un papildu informāciju. Dzīvesvietas attēlošanu vari izslēgt.',
+      'Sadaļā “Attēli” pievieno vai noņem vāka un profila attēlu; vāka attēla novietojumu vari pielāgot.',
+      'Sadaļā “Dekorācijas” izvēlies rotājumus un profila attēla rāmi.',
+      'Pēc izmaiņām spied “Saglabāt izmaiņas”. Dzimšanas dienas noformējums aktivizējas automātiski tavā dzimšanas dienā.',
+    ],
+  },
+  {
+    title: 'Apskati ģimenes locekļus',
+    icon: '👨‍👩‍👧‍👦',
+    description: 'Sadaļā “Lietotāji” redzami apstiprinātie ģimenes locekļi un viņu kopīgotie profili.',
+    tips: [
+      'Izmanto meklēšanas lauku, lai atrastu cilvēku pēc vārda, uzvārda vai iesaukas.',
+      'Pieskaries profila kartītei, lai atvērtu profila logu; atsevišķa pilna profila lapa netiek atvērta.',
+      'Profilā vari apskatīt cilvēka aprakstu, citātu, hobijus un svarīgos datumus.',
+      'Dzīvesvieta redzama tikai tad, ja profila īpašnieks to ir atļāvis parādīt.',
     ],
   },
   {
     title: 'Lasi un pārlūko kalendāru',
     icon: '📅',
-    description: 'Kalendārs ir mēneša režģis, kur katra rūtiņa ir viena diena. Dienās var būt redzamas vārda dienas, ģimenes dzimšanas dienas vai pasākumi. Uzspied uz datuma, lai apskatītu pilnu informāciju.',
+    description: 'Mēneša režģī katra rūtiņa ir viena diena. Uzspied uz tās, lai atvērtu dienas informāciju — datorā tā redzama blakus režģim, bet telefonā zem tā.',
     tips: [
       'Izmanto bultiņas pa kreisi un pa labi, lai pārietu uz iepriekšējo vai nākamo mēnesi.',
       'Spied “Šodien”, lai uzreiz atgrieztos pie pašreizējā mēneša.',
-      'Nospiežot uz dienas, atvērsies tās detaļas: vārda dienas, uzvārda dienas, dzimšanas dienas un ieplānotie pasākumi.',
-      'Atver pasākuma informāciju, lai izlasītu aprakstu, datumu, laiku un norādīto vietu.',
-      'Dažādās dienu krāsas palīdz pamanīt šodienu, dzimšanas dienas un pasākumu datumus.',
+      'Krāsainie punkti rāda vārda dienas, uzvārda dienas, dzimšanas dienas un ģimenes notikumus. Leģenda zem režģa paskaidro krāsas.',
+      'Dienas informācijā redzami vārda un uzvārda dienu vārdi, sakritības ar ģimenes locekļiem, dzimšanas dienas un pieejamie pasākumi.',
+      'Telefonā šūnā redzams datums un notikumu punkti; pārvelc pa kreisi vai pa labi, lai mainītu mēnesi.',
+      'Pasākuma detaļās apskati aprakstu, laiku un vietu.',
     ],
   },
   {
     title: 'Pievieno pasākumu kalendāram',
     icon: '➕',
-    description: 'Kalendāra augšdaļā spied “Jauns notikums”. Aizpildi logā pasākuma informāciju un beigās spied “Pievienot”. Nosaukums un datums ir nepieciešami, lai notikumu saglabātu.',
+    description: 'Datorā spied kalendāra augšdaļā “Jauns notikums”; telefonā izmanto peldošo “Jauns notikums” pogu. Aizpildi formu un spied “Pievienot”. Nosaukums un datums ir obligāti.',
     tips: [
       'Laukā “Nosaukums” ieraksti īsu, saprotamu pasākuma nosaukumu, piemēram, “Ģimenes pikniks”.',
       'Aprakstā pievieno papildu informāciju, ko pārējiem der zināt.',
@@ -89,6 +102,40 @@ const steps = [
       'Albuma vai foto dzēšana ir neatgriezeniska darbība. Pirms apstiprināšanas pārliecinies, ka izvēlēts pareizais albums vai attēls.',
     ],
   },
+  {
+    title: 'Dalies ar Radu pērlēm',
+    icon: '💎',
+    description: 'Radu pērles ir ģimenes atmiņu, citātu un stāstu krātuve, kurā vari dalīties ar tekstu, fotoattēliem un video.',
+    tips: [
+      'Meklē pērles pēc nosaukuma vai citāta un izvēlies kategoriju, lai sašaurinātu sarakstu.',
+      'Spied “Pievienot pērli”, ievadi nosaukumu, kategoriju un stāstu vai citātu; konteksts ir neobligāts.',
+      'Pievieno līdz astoņiem fotoattēliem vai video un apskati to priekšskatījumus pirms iesniegšanas.',
+      'Atzīmē “Iesniegt anonīmi”, ja nevēlies, lai pie pērles būtu redzams tavs vārds.',
+      'Izmanto reakcijas pie pērles. Pieskaroties savai aktīvajai reakcijai vēlreiz, vari to noņemt.',
+    ],
+  },
+  {
+    title: 'Iestati paziņojumus',
+    icon: '🔔',
+    description: 'Iestatījumos vari pārvaldīt paziņojumus šajā ierīcē un atgādinājumus par savām svarīgajām kalendāra dienām.',
+    tips: [
+      'Telefonā atver “Vairāk” → “Iestatījumi”; datorā atver profila izvēlni un izvēlies “Iestatījumi”.',
+      'Sadaļā “Push paziņojumi” spied “Ieslēgt paziņojumus šajā ierīcē” un apstiprini pārlūka pieprasīto atļauju.',
+      'Sadaļā “Kalendāra atgādinājumi” ieslēdz vai izslēdz atgādinājumu dienu iepriekš par savu vārda, uzvārda vai dzimšanas dienu.',
+      'Push atgādinājumiem vajadzīgs aktīvs ierīces abonements. Ja atļauja pārlūkā ir liegta, maini to pārlūka iestatījumos.',
+    ],
+  },
+  {
+    title: 'Sākums, jaunumi un idejas',
+    icon: '✨',
+    description: 'Sākumlapā redzami šodienas un tuvākie ģimenes datumi, kā arī vietnes jaunumi un atsauksmju forma.',
+    tips: [
+      'Pārskati šodienas vārda dienas, uzvārda dienas, ģimenes notikumus un tuvākos datumus.',
+      'Spied “Jaunākie atjauninājumi”, lai atvērtu vietnes jaunumus un apskatītu pievienotās iespējas.',
+      'Sadaļā “Atsauksmes un idejas” izvēlies ziņas veidu, uzraksti vismaz piecus simbolus un spied “Nosūtīt”.',
+      'Atsauksme vai ideja tiek nosūtīta privāti vietnes veidotājam.',
+    ],
+  },
 ];
 
 function Tutorial() {
@@ -115,8 +162,8 @@ function Tutorial() {
           </p>
         </header>
 
-        <section className="mx-auto max-w-5xl overflow-hidden rounded-[1.75rem] border border-white/80 bg-white/90 shadow-[0_20px_60px_rgba(58,39,99,0.12)] backdrop-blur-xl">
-          <div className="border-b border-[#eee7f5] px-5 py-5 sm:px-8">
+        <section className="mx-auto max-w-5xl overflow-hidden rounded-[1.75rem] border border-white/80 bg-white/90 shadow-[0_20px_60px_rgba(45,35,46,0.10)] backdrop-blur-xl">
+          <div className="border-b border-[#e0ddcf] px-5 py-5 sm:px-8">
             <div className="mb-3 flex items-center justify-between gap-4 text-sm">
               <span className="font-bold text-dark-purple">
                 Solis {activeStep + 1} no {steps.length}
@@ -124,7 +171,7 @@ function Tutorial() {
               <span className="text-muted">{Math.round(progress)}% pabeigts</span>
             </div>
             <div
-              className="h-2 overflow-hidden rounded-full bg-[#eee7f5]"
+              className="h-2 overflow-hidden rounded-full bg-[#e0ddcf]"
               role="progressbar"
               aria-label="Ceļveža progress"
               aria-valuemin={0}
@@ -132,7 +179,7 @@ function Tutorial() {
               aria-valuenow={activeStep + 1}
             >
               <div
-                className="h-full rounded-full bg-gradient-to-r from-medium-purple to-[#12b5a6] transition-[width] duration-300"
+                className="h-full rounded-full bg-[#2d232e] transition-[width] duration-300"
                 style={{ width: `${progress}%` }}
               />
             </div>
@@ -141,7 +188,7 @@ function Tutorial() {
           <div className="grid lg:grid-cols-[260px_minmax(0,1fr)]">
             <nav
               aria-label="Ceļveža soļi"
-              className="grid grid-cols-2 gap-2 border-b border-[#eee7f5] p-4 sm:grid-cols-3 lg:flex lg:flex-col lg:border-b-0 lg:border-r lg:p-5"
+              className="grid grid-cols-2 gap-2 border-b border-[#e0ddcf] p-4 sm:grid-cols-3 lg:flex lg:max-h-[70vh] lg:flex-col lg:overflow-y-auto lg:border-b-0 lg:border-r lg:p-5"
             >
               {steps.map((item, index) => (
                 <button
@@ -149,10 +196,10 @@ function Tutorial() {
                   type="button"
                   aria-current={index === activeStep ? 'step' : undefined}
                   onClick={() => setActiveStep(index)}
-                  className={`flex min-w-0 items-start gap-2 rounded-xl px-2.5 py-3 text-left text-sm font-bold leading-5 transition sm:items-center sm:gap-3 sm:px-3 lg:w-full ${
+                  className={`flex min-w-0 items-start gap-2 rounded-xl px-2.5 py-3 text-left text-sm font-bold leading-5 transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#534b52] sm:items-center sm:gap-3 sm:px-3 lg:w-full ${
                     index === activeStep
-                      ? 'bg-[#eee7f5] text-[#382d5b]'
-                      : 'text-muted hover:bg-warm-beige/50 hover:text-dark-purple'
+                      ? 'bg-[#f1f0ea] text-[#2d232e]'
+                      : 'text-muted hover:bg-[#f1f0ea] hover:text-dark-purple'
                   }`}
                 >
                   <span className="shrink-0 text-lg" aria-hidden="true">{item.icon}</span>
@@ -163,7 +210,7 @@ function Tutorial() {
 
             <article className="flex min-h-[390px] flex-col p-5 sm:p-8">
               <div className="flex-1">
-                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#eee7f5] text-2xl" aria-hidden="true">
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#f1f0ea] text-2xl" aria-hidden="true">
                   {step.icon}
                 </div>
                 <h2 className="text-2xl font-black text-dark-purple sm:text-3xl">{step.title}</h2>
@@ -174,8 +221,8 @@ function Tutorial() {
                 </h3>
                 <ol className="mt-3 grid gap-3">
                   {step.tips.map((tip, index) => (
-                    <li key={tip} className="flex gap-3 rounded-xl border border-[#eee7f5] bg-[#fcfaff] px-4 py-3 text-sm leading-6 text-dark-purple">
-                      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#eee7f5] text-xs font-black text-[#382d5b]">
+                    <li key={tip} className="flex gap-3 rounded-xl border border-[#e0ddcf] bg-[#faf9f6] px-4 py-3 text-sm leading-6 text-dark-purple">
+                      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#2d232e] text-xs font-black text-white">
                         {index + 1}
                       </span>
                       <span>{tip}</span>
@@ -184,7 +231,7 @@ function Tutorial() {
                 </ol>
               </div>
 
-              <div className="mt-8 flex flex-col-reverse items-stretch gap-3 border-t border-[#eee7f5] pt-5 sm:flex-row sm:items-center sm:justify-between">
+              <div className="mt-8 flex flex-col-reverse items-stretch gap-3 border-t border-[#e0ddcf] pt-5 sm:flex-row sm:items-center sm:justify-between">
                 <button
                   type="button"
                   onClick={() => setActiveStep((current) => Math.max(0, current - 1))}
