@@ -162,7 +162,7 @@ function PwaInstallPrompt({ enabled }) {
     return (
       <aside
         aria-label="Ieslēgt paziņojumus"
-        className="fixed inset-x-3 bottom-3 z-[60] mx-auto max-w-md rounded-2xl border border-[#e0ddcf] bg-white p-4 shadow-[0_16px_48px_rgba(36,23,38,0.22)] sm:bottom-5 sm:p-5"
+        className="pwa-floating-prompt fixed inset-x-3 z-[90] mx-auto max-w-md rounded-2xl border border-[#e0ddcf] bg-white p-4 shadow-[0_16px_48px_rgba(36,23,38,0.22)] sm:p-5"
       >
         <div className="flex items-start gap-3">
           <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#2d232e] text-xl text-[#f1f0ea]">🔔</span>
@@ -186,7 +186,7 @@ function PwaInstallPrompt({ enabled }) {
   return (
     <aside
       aria-label="Instalēt Radu Burziņu"
-      className="fixed inset-x-3 bottom-3 z-[60] mx-auto max-w-md rounded-2xl border border-[#ded7e5] bg-white p-4 shadow-[0_16px_48px_rgba(36,23,38,0.22)] sm:bottom-5 sm:p-5"
+      className="pwa-floating-prompt fixed inset-x-3 z-[90] mx-auto max-w-md rounded-2xl border border-[#ded7e5] bg-white p-4 shadow-[0_16px_48px_rgba(36,23,38,0.22)] sm:p-5"
     >
       <div className="flex items-start gap-3">
         <img

@@ -48,6 +48,10 @@ function PushNotificationSettings() {
       const registration = await navigator.serviceWorker.ready;
       const subscription = await registration.pushManager.getSubscription();
 
+      if (subscription) {
+        await api.post("/api/push-subscriptions", subscription.toJSON());
+      }
+
       if (isMounted) {
         setPermission(Notification.permission);
         setEnabled(Boolean(subscription));
@@ -55,9 +59,13 @@ function PushNotificationSettings() {
       }
     };
 
-    checkSubscription().catch(() => {
+    checkSubscription().catch((requestError) => {
       if (isMounted) {
-        setError("Neizdevās pārbaudīt paziņojumu iestatījumus.");
+        setError(
+          requestError.response?.data?.message ||
+            requestError.message ||
+            "Neizdevās pārbaudīt vai sinhronizēt paziņojumu ierīci.",
+        );
         setChecking(false);
       }
     });

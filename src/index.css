@@ -527,6 +527,16 @@
   .mobile-sheet-danger { color:#8a4d54!important; }
 }
 
+.pwa-floating-prompt {
+  bottom: 12px;
+}
+
+@media (max-width: 1023.98px) {
+  .pwa-floating-prompt {
+    bottom: calc(72px + env(safe-area-inset-bottom) + 12px);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;

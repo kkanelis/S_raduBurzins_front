@@ -13,7 +13,7 @@ function GuestOnlyRoute({ children }) {
   }
 
   if (user) {
-    return <Navigate to="/calendar" replace />;
+    return <Navigate to="/" replace />;
   }
 
   return children;
