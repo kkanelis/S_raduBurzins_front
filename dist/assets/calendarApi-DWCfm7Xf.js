@@ -1,0 +1,1 @@
+import{a as e}from"./index-CYbHMEYk.js";function o(a,n){return["calendar-month",a,n]}async function s(a,n){return(await e.get("/api/calendar/month",{params:{year:a,month:n}})).data}export{o as c,s as f};

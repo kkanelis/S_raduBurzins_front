@@ -39,7 +39,7 @@ function RegWelcome() {
 
   const upcomingDates = useMemo(() => {
     const lastDate = new Date(`${todayKey}T12:00:00`);
-    lastDate.setDate(lastDate.getDate() + 30);
+    lastDate.setDate(lastDate.getDate() + 60);
     const days = [
       ...Object.values(currentMonthData?.days || {}),
       ...Object.values(nextMonthData?.days || {}),
